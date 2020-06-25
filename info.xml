@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<extension key="aivlgeneric" type="module">
+  <file>aivlgeneric</file>
+  <name>AIVL Generic Extension</name>
+  <description>AIVL specific extension with generic functions</description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Erik Hommel (CiviCooP)</author>
+    <email>erik.hommel@civicoop.org</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">https://lab.civicrm.org/partners/civicoop/aivl/aivlgeneric</url>
+    <url desc="Documentation">https://lab.civicrm.org/partners/civicoop/aivl/aivlgeneric</url>
+    <url desc="Support">https://civicoop.org</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
+  </urls>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi" />
+  </classloader>
+  <releaseDate>2020-06-25</releaseDate>
+  <version>1.0</version>
+  <develStage>beta</develStage>
+  <compatibility>
+    <ver>4.7</ver>
+  </compatibility>
+  <comments>Extension is being tested</comments>
+  <civix>
+    <namespace>CRM/Aivlgeneric</namespace>
+  </civix>
+</extension>
