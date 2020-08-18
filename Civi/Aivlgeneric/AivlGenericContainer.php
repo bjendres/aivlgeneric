@@ -13,7 +13,8 @@ use CRM_Aivlgeneric_ExtensionUtil as E;
 
 class AivlGenericContainer implements CompilerPassInterface {
 
-  private $_aivlLegalName = "Amnesty International Vlaanderen vzw";
+  private $_aivlLegalName = "Amnesty International Vlaanderen VZW";
+  private $_aivlContactId = NULL;
 
   /**
    * You can modify the container here before it is dumped to PHP code.
@@ -58,6 +59,7 @@ class AivlGenericContainer implements CompilerPassInterface {
     ]);
     if ($id) {
       $definition->addMethodCall('setAivlContactId', [(int) $id]);
+      $this->_aivlContactId = (int) $id;
     }
   }
 
@@ -67,13 +69,15 @@ class AivlGenericContainer implements CompilerPassInterface {
    * @param $definition
    */
   private function setAivlEmployees(&$definition) {
+    // first make sure that Databeheer (if exists) is added as employee
+    $this->setDataBeheerEmployee();
     $employees = [];
     $query = "SELECT cr.contact_id_a AS contact_id, cca.display_name
       FROM civicrm_relationship AS cr
           JOIN civicrm_relationship_type AS crt ON cr.relationship_type_id = crt.id
           JOIN civicrm_contact AS cca ON cr.contact_id_a = cca.id
           JOIN civicrm_contact AS ccb ON cr.contact_id_b = ccb.id
-      WHERE (crt.name_a_b = %1 AND crt.name_b_a = %2) AND cr.is_active = %3 AND cca.contact_type = %4
+      WHERE (crt.name_a_b = %1 AND crt.name_b_a = %2) AND cr.is_active = %3 AND cca.contact_type IN(%4, %5)
           AND ccb.contact_type = %5 AND ccb.legal_name = %6";
     $queryParams = [
       1 => ["Employee of", "String"],
@@ -88,6 +92,46 @@ class AivlGenericContainer implements CompilerPassInterface {
       $employees[$dao->contact_id] = $dao->display_name;
     }
     $definition->addMethodCall('setAivlEmployees', [$employees]);
+  }
+
+  /**
+   * Method to check if databeheer is set as employee and add if not
+   */
+  private function setDataBeheerEmployee() {
+    $query = "SELECT id FROM civicrm_relationship_type WHERE name_a_b = %1 AND name_b_a = %2";
+    $employeeRelationshipTypeId = \CRM_Core_DAO::singleValueQuery($query, [
+      1 => ["Employee of", "String"],
+      2 => ["Employer of", "String"],
+    ]);
+    if ($employeeRelationshipTypeId) {
+      $query = "SELECT id FROM civicrm_contact WHERE display_name = %1 AND contact_type = %2";
+      $dataBeheerId = \CRM_Core_DAO::singleValueQuery($query, [
+        1 => ["Databeheer AIVL", "String"],
+        2 => ["Organization", "String"],
+      ]);
+      if ($dataBeheerId) {
+        $query = "SELECT COUNT(*) FROM civicrm_relationship
+          WHERE relationship_type_id = %1 AND contact_id_b = %2 AND contact_id_a = %3";
+        $countDataBeheer = \CRM_Core_DAO::singleValueQuery($query, [
+          1 => [(int) $employeeRelationshipTypeId, "Integer"],
+          2 => [$this->_aivlContactId, "Integer"],
+          3 => [$dataBeheerId, "Integer"],
+        ]);
+        if ($countDataBeheer == 0) {
+          $insert = "INSERT INTO civicrm_relationship
+            (contact_id_a, contact_id_b, relationship_type_id, is_active, start_date, is_permission_a_b, is_permission_b_a)
+            VALUES(%1, %2, %3, %4, %5, %6, %6)";
+          \CRM_Core_DAO::executeQuery($insert, [
+            1 => [(int) $dataBeheerId, "Integer"],
+            2 => [(int) $this->_aivlContactId, "Integer"],
+            3 => [(int) $employeeRelationshipTypeId, "Integer"],
+            4 => [1, "Integer"],
+            5 => ["2013-01-01", "String"],
+            6 => [0, "Integer"],
+          ]);
+        }
+      }
+    }
   }
 
 }
