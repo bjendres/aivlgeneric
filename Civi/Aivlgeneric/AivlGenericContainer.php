@@ -25,7 +25,21 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setActivityTypes($definition);
     $this->setAivlContactId($definition);
     $this->setAivlEmployees($definition);
+    $this->setMembershipStatusId($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the membership status id(s)
+   *
+   * @param $definition
+   */
+  private function setMembershipStatusId(&$definition) {
+    $query = "SELECT id FROM civicrm_membership_status WHERE name = %1 LIMIT 1";
+    $statusId = \CRM_Core_DAO::singleValueQuery($query, [1 => ["Expired", "String"]]);
+    if ($statusId) {
+      $definition->addMethodCall('setExpiredMembershipStatusId', [(int) $statusId]);
+    }
   }
 
   /**

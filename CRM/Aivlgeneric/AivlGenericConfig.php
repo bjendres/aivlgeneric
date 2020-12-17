@@ -16,6 +16,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_aivlContactId = NULL;
   private $_aivlEmployees = [];
   private $_toCheckActivityTypeId = NULL;
+  private $_expiredMembershipStatusId = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -48,6 +49,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getAivlContactId() {
     return $this->_aivlContactId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setExpiredMembershipStatusId($id) {
+    $this->_expiredMembershipStatusId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getExpiredMembershipStatusId() {
+    return $this->_expiredMembershipStatusId;
   }
 
   /**
