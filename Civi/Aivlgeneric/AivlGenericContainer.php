@@ -26,7 +26,51 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setAivlContactId($definition);
     $this->setAivlEmployees($definition);
     $this->setMembershipStatusId($definition);
+    $this->setOptionGroupIds($definition);
+    $this->setGenderIds($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the gender ids
+   *
+   * @param $definition
+   */
+  private function setGenderIds(&$definition) {
+    $query = "SELECT cov.value, cov.name
+        FROM civicrm_option_value AS cov
+            JOIN civicrm_option_group AS cog ON cov.option_group_id = cog.id
+        WHERE cog.name = %1 AND cov.name IN(%2, %3)";
+    $queryParams = [
+      1 => ["gender", "String"],
+      2 => ["Male", "String"],
+      3 => ["Female", "String"],
+    ];
+    $dao = \CRM_Core_DAO::executeQuery($query, $queryParams);
+    while ($dao->fetch()) {
+      switch ($dao->name) {
+        case "Female":
+          $definition->addMethodCall('setFemaleGenderId', [(int) $dao->value]);
+          break;
+
+        case "Male":
+          $definition->addMethodCall('setMaleGenderId', [(int) $dao->value]);
+          break;
+      }
+    }
+  }
+
+  /**
+   * Method to set the option group ids
+   *
+   * @param $definition
+   */
+  private function setOptionGroupIds(&$definition) {
+    $query = "SELECT id FROM civicrm_option_group WHERE name LIKE %1";
+    $optionGroupId = \CRM_Core_DAO::singleValueQuery($query, [1 => ["individual_prefix", "String"]]);
+    if ($optionGroupId) {
+      $definition->addMethodCall('setPrefixOptionGroupId', [(int) $optionGroupId]);
+    }
   }
 
   /**
