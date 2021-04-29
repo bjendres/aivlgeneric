@@ -18,6 +18,9 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_aivlEmployees = [];
   private $_toCheckActivityTypeId = NULL;
   private $_expiredMembershipStatusId = NULL;
+  private $_prefixOptionGroupId = NULL;
+  private $_maleGenderId = NULL;
+  private $_femaleGenderId = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -79,6 +82,49 @@ class CRM_AivlGeneric_AivlGenericConfig {
   public function getToCheckActivityTypeId() {
     return $this->_toCheckActivityTypeId;
   }
+
+  /**
+   * @param int
+   */
+  public function setPrefixOptionGroupId($id) {
+    $this->_prefixOptionGroupId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getPrefixOptionGroupId() {
+    return $this->_prefixOptionGroupId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setFemaleGenderId($id) {
+    $this->_femaleGenderId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getFemaleGenderId() {
+    return $this->_femaleGenderId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setMaleGenderId($id) {
+    $this->_maleGenderId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getMaleGenderId() {
+    return $this->_maleGenderId;
+  }
+
   /**
    * @param array
    */
