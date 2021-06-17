@@ -28,7 +28,99 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setMembershipStatusId($definition);
     $this->setOptionGroupIds($definition);
     $this->setGenderIds($definition);
+    $this->setCustomData($definition);
+    $this->setActivityStatus($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the activity status
+   *
+   * @param $definition
+   */
+  private function setActivityStatus(&$definition) {
+    $query = "SELECT cov.value FROM civicrm_option_value cov
+        JOIN civicrm_option_group cog ON cov.option_group_id = cog.id
+        WHERE cog.name = %1 AND cov.name = %2";
+    $queryParams = [
+      1 => ["activity_status", "String"],
+      2 => ["Completed", "String"],
+    ];
+    $value = \CRM_Core_DAO::singleValueQuery($query, $queryParams);
+    if ($value) {
+      $definition->addMethodCall('setCompletedActivityStatusId', [(int) $value]);
+    }
+  }
+
+  /**
+   * Method to set the custom data
+   *
+   * @param $definition
+   */
+  private function setCustomData(&$definition) {
+    $customGroupName = "FWTM_call_assignment_info";
+    $query = "SELECT id, table_name FROM civicrm_custom_group WHERE name = %1";
+    $dao = \CRM_Core_DAO::executeQuery($query, [1 => [$customGroupName, "String"]]);
+    if ($dao->fetch()) {
+      $definition->addMethodCall("setTmCallAssignmentTable", [$dao->table_name]);
+      $this->addCallAssignmentCustomFields((int) $dao->id, $definition);
+    }
+  }
+
+  /**
+   * Method to set the call assignment custom fields
+   *
+   * @param $customGroupdId
+   * @param $definition
+   */
+  private function addCallAssignmentCustomFields($customGroupdId, &$definition) {
+    $query = "SELECT id, name, column_name FROM civicrm_custom_field WHERE custom_group_id = %1";
+    $dao = \CRM_Core_DAO::executeQuery($query, [1 => [(int) $customGroupdId, "Integer"]]);
+    while ($dao->fetch()) {
+      switch ($dao->name) {
+        case "TMassignment_result_code":
+          $definition->addMethodCall('setTmCaResultCodeCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_agent":
+          $definition->addMethodCall('setTmCaResultAgentCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_reason_no":
+          $definition->addMethodCall('setTmCaResultReasonNoCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_calldate":
+          $definition->addMethodCall('setTmCaCallDateCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_upload_date":
+          $definition->addMethodCall('setTmCaResultUploadDateCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_mandatecode":
+          $definition->addMethodCall('setTmCaResultMandateCodeColumn', [$dao->column_name]);
+          break;
+        case "TMassignment_sdd_mandatecode_new":
+          $definition->addMethodCall('setTmCaResultMandateCodeNewCustomFieldId', [(int)$dao->id]);
+          break;
+        case "TMassignment_result_agency_reference":
+          $definition->addMethodCall('setTmCaAgencyReferenceCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_amount":
+          $definition->addMethodCall('setTmCaResultAmountCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_frequency_interval":
+          $definition->addMethodCall('setTmCaResultFreqIntervalCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_frequency_unit":
+          $definition->addMethodCall('setTmCaResultFreqUnitCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_iban":
+          $definition->addMethodCall('setTmCaResultIbanCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_startdate":
+          $definition->addMethodCall('setTmCaResultStartDateCustomFieldId', [(int) $dao->id]);
+          break;
+
+      }
+
+    }
   }
 
   /**
@@ -92,15 +184,23 @@ class AivlGenericContainer implements CompilerPassInterface {
    * @param $definition
    */
   private function setActivityTypes(&$definition) {
-    $query = "SELECT cov.value
+    $query = "SELECT cov.value, cov.name
         FROM civicrm_option_group AS cog JOIN civicrm_option_value AS cov ON cog.id = cov.option_group_id
-        WHERE cog.name = %1 AND cov.name = %2";
-    $id = \CRM_Core_DAO::singleValueQuery($query, [
+        WHERE cog.name = %1 AND cov.name IN (%2, %3)";
+    $dao = \CRM_Core_DAO::executeQuery($query, [
       1 => ["activity_type", "String"],
       2 => ["To Check", "String"],
+      3 => ["FWTM call assignment", "String"],
     ]);
-    if ($id) {
-      $definition->addMethodCall('setToCheckActivityTypeId', [(int) $id]);
+    while ($dao->fetch()) {
+      switch ($dao->name) {
+        case "FWTM call assignment":
+          $definition->addMethodCall('setCallAssignmentActivityTypeId', [(int) $dao->value]);
+          break;
+        case "To Check":
+          $definition->addMethodCall('setToCheckActivityTypeId', [(int) $dao->value]);
+          break;
+      }
     }
   }
 

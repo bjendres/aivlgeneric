@@ -16,11 +16,27 @@ class CRM_AivlGeneric_AivlGenericConfig {
 
   private $_aivlContactId = NULL;
   private $_aivlEmployees = [];
-  private $_toCheckActivityTypeId = NULL;
+  private $_completedActivityStatusId = NULL;
   private $_expiredMembershipStatusId = NULL;
-  private $_prefixOptionGroupId = NULL;
-  private $_maleGenderId = NULL;
   private $_femaleGenderId = NULL;
+  private $_maleGenderId = NULL;
+  private $_prefixOptionGroupId = NULL;
+  private $_callAssignmentActivityTypeId = NULL;
+  private $_tmCallAssignmentTable = NULL;
+  private $_tmCaResultCodeCustomFieldId = NULL;
+  private $_tmCaResultAgentCustomFieldId = NULL;
+  private $_tmCaResultReasonNoCustomFieldId = NULL;
+  private $_tmCaCallDateCustomFieldId = NULL;
+  private $_tmCaResultUploadDateCustomFieldId = NULL;
+  private $_tmCaResultMandateCodeColumn = NULL;
+  private $_tmCaResultMandateCodeNewCustomFieldId = NULL;
+  private $_tmCaAgencyReferenceCustomFieldId = NULL;
+  private $_tmCaResultAmountCustomFieldId = NULL;
+  private $_tmCaResultFreqIntervalCustomFieldId = NULL;
+  private $_tmCaResultFreqUnitCustomFieldId = NULL;
+  private $_tmCaResultIbanCustomFieldId = NULL;
+  private $_tmCaResultStartDateCustomFieldId = NULL;
+  private $_toCheckActivityTypeId = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -58,6 +74,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
   /**
    * @param int
    */
+  public function setCompletedActivityStatusId($id) {
+    $this->_completedActivityStatusId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getCompletedActivityStatusId() {
+    return $this->_completedActivityStatusId;
+  }
+
+  /**
+   * @param int
+   */
   public function setExpiredMembershipStatusId($id) {
     $this->_expiredMembershipStatusId = $id;
   }
@@ -81,6 +111,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getToCheckActivityTypeId() {
     return $this->_toCheckActivityTypeId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setCallAssignmentActivityTypeId($id) {
+    $this->_callAssignmentActivityTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getCallAssignmentActivityTypeId() {
+    return $this->_callAssignmentActivityTypeId;
   }
 
   /**
@@ -123,6 +167,202 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getMaleGenderId() {
     return $this->_maleGenderId;
+  }
+
+  /**
+   * @param string
+   */
+  public function setTmCaResultMandateCodeColumn($columnName) {
+    $this->_tmCaResultMandateCodeColumn = $columnName;
+  }
+
+  /**
+   * @return string
+   */
+  public function getTmCaResultMandateCodeColumn() {
+    return $this->_tmCaResultMandateCodeColumn;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultMandateCodeNewCustomFieldId($id) {
+    $this->_tmCaResultMandateCodeNewCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultMandateCodeNewCustomFieldId() {
+    return $this->_tmCaResultMandateCodeNewCustomFieldId;
+  }
+
+  /**
+   * @param string
+   */
+  public function setTmCallAssignmentTable($tableName) {
+    $this->_tmCallAssignmentTable = $tableName;
+  }
+
+  /**
+   * @return string
+   */
+  public function getTmCallAssignmentTable() {
+    return $this->_tmCallAssignmentTable;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultCodeCustomFieldId($id) {
+    $this->_tmCaResultCodeCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultCodeCustomFieldId() {
+    return $this->_tmCaResultCodeCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultAgentCustomFieldId($id) {
+    $this->_tmCaResultAgentCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultAgentCustomFieldId() {
+    return $this->_tmCaResultAgentCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultReasonNoCustomFieldId($id) {
+    $this->_tmCaResultReasonNoCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultReasonNoCustomFieldId() {
+    return $this->_tmCaResultReasonNoCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaCallDateCustomFieldId($id) {
+    $this->_tmCaCallDateCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaCallDateCustomFieldId() {
+    return $this->_tmCaCallDateCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultUploadDateCustomFieldId($id) {
+    $this->_tmCaResultUploadDateCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultUploadDateCustomFieldId() {
+    return $this->_tmCaResultUploadDateCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaAgencyReferenceCustomFieldId($id) {
+    $this->_tmCaAgencyReferenceCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaAgencyReferenceCustomFieldId() {
+    return $this->_tmCaAgencyReferenceCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultAmountCustomFieldId($id) {
+    $this->_tmCaResultAmountCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultAmountCustomFieldId() {
+    return $this->_tmCaResultAmountCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultFreqIntervalCustomFieldId($id) {
+    $this->_tmCaResultFreqIntervalCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultFreqIntervalCustomFieldId() {
+    return $this->_tmCaResultFreqIntervalCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultFreqUnitCustomFieldId($id) {
+    $this->_tmCaResultFreqUnitCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultFreqUnitCustomFieldId() {
+    return $this->_tmCaResultFreqUnitCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultIbanCustomFieldId($id) {
+    $this->_tmCaResultIbanCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultIbanCustomFieldId() {
+    return $this->_tmCaResultIbanCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultStartDateCustomFieldId($id) {
+    $this->_tmCaResultStartDateCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultStartDateCustomFieldId() {
+    return $this->_tmCaResultStartDateCustomFieldId;
   }
 
   /**
