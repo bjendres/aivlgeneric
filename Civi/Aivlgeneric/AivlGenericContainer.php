@@ -23,6 +23,7 @@ class AivlGenericContainer implements CompilerPassInterface {
     $definition = new Definition('CRM_Aivlgeneric_AivlGenericConfig');
     $definition->setFactory(['CRM_Aivlgeneric_AivlGenericConfig', 'getInstance']);
     $this->setActivityTypes($definition);
+    $this->setActivityContacts($definition);
     $this->setAivlContactId($definition);
     $this->setAivlEmployees($definition);
     $this->setMembershipStatusId($definition);
@@ -33,6 +34,31 @@ class AivlGenericContainer implements CompilerPassInterface {
     $container->setDefinition('aivlgeneric', $definition);
   }
 
+  /**
+   * Method to set the activity contact record types
+   *
+   * @param $definition
+   */
+  private function setActivityContacts(&$definition) {
+    $query = "SELECT cov.name, cov.value
+        FROM civicrm_option_value cov JOIN civicrm_option_group cog ON cov.option_group_id = cog.id
+        WHERE cog.name = %1";
+    $dao = \CRM_Core_DAO::executeQuery($query, [1 => ["activity_contacts", "String"]]);
+    while ($dao->fetch()) {
+      switch ($dao->name) {
+        case "Activity Assignees":
+          $definition->addMethodCall('setAssigneeRecordTypeId', [(int) $dao->value]);
+          break;
+        case "Activity Source":
+          $definition->addMethodCall('setSourceRecordTypeId', [(int) $dao->value]);
+          break;
+        case "Activity Targets":
+          $definition->addMethodCall('setTargetRecordTypeId', [(int) $dao->value]);
+          break;
+      }
+    }
+
+  }
   /**
    * Method to set the activity status
    *

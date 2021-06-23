@@ -37,6 +37,9 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_tmCaResultIbanCustomFieldId = NULL;
   private $_tmCaResultStartDateCustomFieldId = NULL;
   private $_toCheckActivityTypeId = NULL;
+  private $_assigneeRecordTypeId = NULL;
+  private $_sourceRecordTypeId = NULL;
+  private $_targetRecordTypeId = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -167,6 +170,48 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getMaleGenderId() {
     return $this->_maleGenderId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setAssigneeRecordTypeId($id) {
+    $this->_assigneeRecordTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getAssigneeRecordTypeId() {
+    return $this->_assigneeRecordTypeId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setSourceRecordTypeId($id) {
+    $this->_sourceRecordTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getSourceRecordTypeId() {
+    return $this->_sourceRecordTypeId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTargetRecordTypeId($id) {
+    $this->_targetRecordTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTargetRecordTypeId() {
+    return $this->_targetRecordTypeId;
   }
 
   /**
