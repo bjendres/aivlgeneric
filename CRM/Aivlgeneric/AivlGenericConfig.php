@@ -22,6 +22,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_maleGenderId = NULL;
   private $_prefixOptionGroupId = NULL;
   private $_callAssignmentActivityTypeId = NULL;
+  private $_welkomstPakketActivityTypeId = NULL;
   private $_tmCallAssignmentTable = NULL;
   private $_tmCaResultCodeCustomFieldId = NULL;
   private $_tmCaResultAgentCustomFieldId = NULL;
@@ -128,6 +129,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getCallAssignmentActivityTypeId() {
     return $this->_callAssignmentActivityTypeId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setWelkomstPakketActivityTypeId($id) {
+    $this->_welkomstPakketActivityTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getWelkomstPakketActivityTypeId() {
+    return $this->_welkomstPakketActivityTypeId;
   }
 
   /**

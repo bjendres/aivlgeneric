@@ -212,14 +212,18 @@ class AivlGenericContainer implements CompilerPassInterface {
   private function setActivityTypes(&$definition) {
     $query = "SELECT cov.value, cov.name
         FROM civicrm_option_group AS cog JOIN civicrm_option_value AS cov ON cog.id = cov.option_group_id
-        WHERE cog.name = %1 AND cov.name IN (%2, %3)";
+        WHERE cog.name = %1 AND cov.name IN (%2, %3, %4)";
     $dao = \CRM_Core_DAO::executeQuery($query, [
       1 => ["activity_type", "String"],
       2 => ["To Check", "String"],
       3 => ["FWTM call assignment", "String"],
+      4 => ["aivl_welkomstpakket", "String"],
     ]);
     while ($dao->fetch()) {
       switch ($dao->name) {
+        case "aivl_welkomstpakket":
+          $definition->addMethodCall('setWelkomstPakketActivityTypeId', [(int) $dao->value]);
+          break;
         case "FWTM call assignment":
           $definition->addMethodCall('setCallAssignmentActivityTypeId', [(int) $dao->value]);
           break;
