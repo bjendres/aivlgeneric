@@ -20,9 +20,9 @@
   <requires>
     <ext>aivlgeneric</ext>
   </requires>
-  <releaseDate>2021-07-19</releaseDate>
-  <version>1.6</version>
-  <develStage>beta</develStage>
+  <releaseDate>2021-09-16</releaseDate>
+  <version>1.7</version>
+  <develStage>stable</develStage>
   <compatibility>
     <ver>4.7</ver>
   </compatibility>

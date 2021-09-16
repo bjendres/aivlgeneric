@@ -41,6 +41,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_assigneeRecordTypeId = NULL;
   private $_sourceRecordTypeId = NULL;
   private $_targetRecordTypeId = NULL;
+  private $_petitionCampaignTypeId = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -423,6 +424,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getTmCaResultStartDateCustomFieldId() {
     return $this->_tmCaResultStartDateCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setPetitionCampaignTypeId($id) {
+    $this->_petitionCampaignTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getPetitionCampaignTypeId() {
+    return $this->_petitionCampaignTypeId;
   }
 
   /**

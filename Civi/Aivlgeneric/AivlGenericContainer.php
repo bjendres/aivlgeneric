@@ -31,7 +31,26 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setGenderIds($definition);
     $this->setCustomData($definition);
     $this->setActivityStatus($definition);
+    $this->setCampaignTypeId($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set campaign type(s)
+   *
+   * @param $definition
+   */
+  private function setCampaignTypeId(&$definition) {
+    $query = "SELECT cov.value
+        FROM civicrm_option_group AS cog JOIN civicrm_option_value AS cov ON cog.id = cov.option_group_id
+        WHERE cog.name = %1 AND cov.name = %2";
+    $campaignTypeId = \CRM_Core_DAO::singleValueQuery($query, [
+      1 => ["campaign_type", "String"],
+      2 => ["Petitie", "String"],
+    ]);
+    if ($campaignTypeId) {
+      $definition->addMethodCall('setPetitionCampaignTypeId', [(int) $campaignTypeId]);
+    }
   }
 
   /**
