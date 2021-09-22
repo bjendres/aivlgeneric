@@ -42,6 +42,8 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_sourceRecordTypeId = NULL;
   private $_targetRecordTypeId = NULL;
   private $_petitionCampaignTypeId = NULL;
+  private $_mailingListGroupTypeId = NULL;
+  private $_mailingListGroupTypeName = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -438,6 +440,34 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getPetitionCampaignTypeId() {
     return $this->_petitionCampaignTypeId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setMailingListGroupTypeId($id) {
+    $this->_mailingListGroupTypeId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getMailingListGroupTypeId() {
+    return $this->_mailingListGroupTypeId;
+  }
+
+  /**
+   * @param string
+   */
+  public function setMailingListGroupTypeName($name) {
+    $this->_mailingListGroupTypeName = $name;
+  }
+
+  /**
+   * @return string
+   */
+  public function getMailingListGroupTypeName() {
+    return $this->_mailingListGroupTypeName;
   }
 
   /**

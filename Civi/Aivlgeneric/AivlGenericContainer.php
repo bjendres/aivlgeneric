@@ -24,6 +24,7 @@ class AivlGenericContainer implements CompilerPassInterface {
     $definition->setFactory(['CRM_Aivlgeneric_AivlGenericConfig', 'getInstance']);
     $this->setActivityTypes($definition);
     $this->setActivityContacts($definition);
+    $this->setGroupTypes($definition);
     $this->setAivlContactId($definition);
     $this->setAivlEmployees($definition);
     $this->setMembershipStatusId($definition);
@@ -33,6 +34,26 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setActivityStatus($definition);
     $this->setCampaignTypeId($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the group types
+   *
+   * @param $definition
+   */
+  private function setGroupTypes(&$definition) {
+    $mailingListName = "Mailing List";
+    $definition->addMethodCall('setMailingListGroupTypeName', [$mailingListName]);
+    $query = "SELECT cov.value
+        FROM civicrm_option_group AS cog JOIN civicrm_option_value AS cov ON cog.id = cov.option_group_id
+        WHERE cog.name = %1 AND cov.name = %2";
+    $groupTypeId = \CRM_Core_DAO::singleValueQuery($query, [
+      1 => ["group_type", "String"],
+      2 => ["Mailing List", "String"],
+      ]);
+    if ($groupTypeId) {
+      $definition->addMethodCall('setMailingListGroupTypeId', [(int) $groupTypeId]);
+    }
   }
 
   /**

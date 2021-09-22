@@ -14,6 +14,7 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
    */
   public function install() {
     $this->createWelkomstPakketIfNotExists();
+    $this->createFirstYearGroupsIfNotExists();
   }
 
   /**
@@ -26,6 +27,104 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->ctx->log->info('Applying update 1000 - add welkomst pakket activity type if not exists');
     $this->createWelkomstPakketIfNotExists();
     return TRUE;
+  }
+
+  /**
+   * Upgrade 1010: create first year groups if not exists
+   *
+   * @return TRUE on success
+   * @throws Exception
+   */
+  public function upgrade_1010() {
+    $this->ctx->log->info('Applying update 1010 - create first year groups if not exists');
+    $this->createFirstYearGroupsIfNotExists();
+    return TRUE;
+  }
+
+  /**
+   * Method to create first year groups if not exists
+   */
+  private function createFirstYearGroupsIfNotExists() {
+    $groups = [
+      'aivl_first_year_donor' => [
+        'title' => "First Year Donor",
+        'description' => "Groep voor eerste jaar donors (nieuwe donors die in deze groep komen na hun eerste non-recurrente donatie)"
+      ],
+      'aivl_first_year_40+' => [
+        'title' => "First Year Donor 40+",
+        'description' => "Groep voor eerste jaar donors die 40 euro of meer doneren als eerste donatie (nieuwe donors die in deze groep komen na hun eerste non-recurrente donatie als die 40 euro of meer is)"
+      ],
+    ];
+    foreach ($groups as $groupName => $groupData) {
+      if (function_exists('civicrm_api4')) {
+        $this->createFirstYearGroupApi4($groupName, $groupData['title'], $groupData['description']);
+      }
+      else {
+        $this->createFirstYearGroupApi3($groupName, $groupData['title'], $groupData['description']);
+      }
+    }
+  }
+
+  /**
+   * Method to create a first year donor group if it does not exist yet with api4
+   *
+   * @param $name
+   * @param $title
+   * @param $description
+   */
+  private function createFirstYearGroupApi4($name, $title, $description) {
+    try {
+      $action = "get";
+      $groups = \Civi\Api4\Group::$action()
+        ->addSelect('COUNT(*) AS count')
+        ->addWhere('name', '=', $name)
+        ->execute();
+      $group = $groups->first();
+      if ($group['count'] == 0) {
+        $action = "create";
+        \Civi\Api4\Group::$action()
+          ->addValue('name', $name)
+          ->addValue('title', $title)
+          ->addValue('description', $description)
+          ->addValue('is_active', TRUE)
+          ->addValue('group_type', [Civi::service('aivlgeneric')->getMailingListGroupTypeId()])
+          ->addValue('is_reserved', TRUE)
+          ->execute();
+      }
+    }
+    catch (API_Exception $ex) {
+      Civi::log()->error(E::ts("Error creating group in ") . __METHOD__ . E::ts(", error from API4 Group ") . $action
+        . $ex->getMessage());
+    }
+  }
+
+  /**
+   * Method to create a first year donor group if it does not exist yet with api3
+   *
+   * @param $name
+   * @param $title
+   * @param $description
+   */
+  private function createFirstYearGroupApi3($name, $title, $description) {
+    try {
+      $action = "getcount";
+      $groupCount = civicrm_api3('Group', $action, ['name' => $name]);
+      if ($groupCount == 0) {
+        $action = "create";
+        civicrm_api3('Group', $action, [
+          'name' => $name,
+          'title' => $title,
+          'description' => $description,
+          'is_active' => TRUE,
+          'is_reserved' => TRUE,
+          'group_type' => Civi::service('aivlgeneric')->getMailingListGroupTypeName(),
+        ]);
+      }
+    }
+    catch (CiviCRM_API3_Exception $ex) {
+      Civi::log()->error(E::ts("Error creating group in ") . __METHOD__ . E::ts(", error from API3 Group ") . $action
+        . $ex->getMessage());
+    }
   }
 
   /**
