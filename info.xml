@@ -17,9 +17,6 @@
   <classloader>
     <psr4 prefix="Civi\" path="Civi" />
   </classloader>
-  <requires>
-    <ext>aivlgeneric</ext>
-  </requires>
   <releaseDate>2021-09-16</releaseDate>
   <version>1.7</version>
   <develStage>stable</develStage>
