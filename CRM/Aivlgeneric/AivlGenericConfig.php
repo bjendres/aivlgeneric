@@ -23,6 +23,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_prefixOptionGroupId = NULL;
   private $_callAssignmentActivityTypeId = NULL;
   private $_welkomstPakketActivityTypeId = NULL;
+  private $_welkomstPakketTypeCustomFieldId = NULL;
   private $_tmCallAssignmentTable = NULL;
   private $_tmCaResultCodeCustomFieldId = NULL;
   private $_tmCaResultAgentCustomFieldId = NULL;
@@ -454,6 +455,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getMailingListGroupTypeId() {
     return $this->_mailingListGroupTypeId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setWelkomstPakketTypeCustomFieldId($id) {
+    $this->_welkomstPakketTypeCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getWelkomstPakketTypeCustomFieldId() {
+    return $this->_welkomstPakketTypeCustomFieldIdmailingListGroupTypeId;
   }
 
   /**

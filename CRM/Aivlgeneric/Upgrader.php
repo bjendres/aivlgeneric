@@ -15,6 +15,7 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
   public function install() {
     $this->createWelkomstPakketIfNotExists();
     $this->createFirstYearGroupsIfNotExists();
+    $this->createPrimaryPetitionField();
   }
 
   /**
@@ -39,6 +40,36 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->ctx->log->info('Applying update 1010 - create first year groups if not exists');
     $this->createFirstYearGroupsIfNotExists();
     return TRUE;
+  }
+
+  /**
+   * Upgrade 1020 - add custom field aivl primary petition
+   * @return bool
+   */
+  public function upgrade_1020() {
+    $this->ctx->log->info("Applying update 1020 - add primary petition custom field");
+    $this->createPrimaryPetitionField();
+    return TRUE;
+  }
+
+  /**
+   * Method to create aivl primary petition field
+   */
+  private function createPrimaryPetitionField() {
+    $customData = new CRM_Aivlgeneric_CustomData();
+    $file = $customData->getJsonFile('aivl_primary_petition_field.json');
+    if ($file) {
+      $customGroupId = $customData->getCustomGroupId('Petities_metadata', 'Activity');
+      if ($customGroupId) {
+        foreach ($file as $key => $values) {
+          $customFieldId = $customData->getCustomFieldId($customGroupId, $key);
+          if (!$customFieldId) {
+            $values['custom_group_id'] = $customGroupId;
+            $customData->createCustomField($values);
+          }
+        }
+      }
+    }
   }
 
   /**

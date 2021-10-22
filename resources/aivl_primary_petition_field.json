@@ -1,0 +1,12 @@
+{
+  "aivl_primary_petition": {
+    "name": "aivl_primary_petition",
+    "label": "Primaire petitie",
+    "data_type": "Int",
+    "html_type": "Text",
+    "is_searchable": 1,
+    "is_active": 1,
+    "is_view": 1,
+    "column_name":"aivl_primary_petition"
+  }
+}

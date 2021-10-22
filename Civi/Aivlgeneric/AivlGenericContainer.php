@@ -33,7 +33,26 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setCustomData($definition);
     $this->setActivityStatus($definition);
     $this->setCampaignTypeId($definition);
+    $this->setWelkomstPakketTypeCustomField($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the type welkomst pakket custom field properties
+   *
+   * @param $definition
+   */
+  private function setWelkomstPakketTypeCustomField(&$definition) {
+    $query = "SELECT cf.id
+        FROM civicrm_custom_group AS cg JOIN civicrm_custom_field AS cf ON cg.id = cf.custom_group_id
+        WHERE cg.name = %1 AND cf.name = %2";
+    $id = \CRM_Core_DAO::singleValueQuery($query, [
+      1 => ["aivl_welkomstpakket", "String"],
+      2 => ["type_pakket", "String"],
+    ]);
+    if ($id) {
+      $definition->addMethodCall('setWelkomstPakketTypeCustomFieldId', [(int) $id]);
+    }
   }
 
   /**
