@@ -187,8 +187,14 @@ class AivlGenericContainer implements CompilerPassInterface {
         case "TMassignment_result_agency_reference":
           $definition->addMethodCall('setTmCaAgencyReferenceCustomFieldId', [(int) $dao->id]);
           break;
+        case "TMassignment_result_code_sdd":
+          $definition->addMethodCall('setTmCaResultCodeSddCustomFieldId', [(int) $dao->id]);
+          break;
         case "TMassignment_result_sdd_amount":
           $definition->addMethodCall('setTmCaResultAmountCustomFieldId', [(int) $dao->id]);
+          break;
+        case "TMassignment_result_sdd_enddate":
+          $definition->addMethodCall('setTmCaResultEndDateCustomFieldId', [(int) $dao->id]);
           break;
         case "TMassignment_result_sdd_frequency_interval":
           $definition->addMethodCall('setTmCaResultFreqIntervalCustomFieldId', [(int) $dao->id]);
