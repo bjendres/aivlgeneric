@@ -23,7 +23,6 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_prefixOptionGroupId = NULL;
   private $_callAssignmentActivityTypeId = NULL;
   private $_welkomstPakketActivityTypeId = NULL;
-  private $_welkomstPakketTypeCustomFieldId = NULL;
   private $_tmCallAssignmentTable = NULL;
   private $_tmCaResultCodeCustomFieldId = NULL;
   private $_tmCaResultAgentCustomFieldId = NULL;
@@ -37,7 +36,9 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_tmCaResultFreqIntervalCustomFieldId = NULL;
   private $_tmCaResultFreqUnitCustomFieldId = NULL;
   private $_tmCaResultIbanCustomFieldId = NULL;
+  private $_tmCaResultEndDateCustomFieldId = NULL;
   private $_tmCaResultStartDateCustomFieldId = NULL;
+  private $_tmCaResultCodeSddCustomFieldId = NULL;
   private $_toCheckActivityTypeId = NULL;
   private $_assigneeRecordTypeId = NULL;
   private $_sourceRecordTypeId = NULL;
@@ -418,6 +419,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
   /**
    * @param int
    */
+  public function setTmCaResultEndDateCustomFieldId($id) {
+    $this->_tmCaResultEndDateCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultEndDateCustomFieldId() {
+    return $this->_tmCaResultEndDateCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
   public function setTmCaResultStartDateCustomFieldId($id) {
     $this->_tmCaResultStartDateCustomFieldId = $id;
   }
@@ -427,6 +442,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getTmCaResultStartDateCustomFieldId() {
     return $this->_tmCaResultStartDateCustomFieldId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setTmCaResultCodeSddCustomFieldId(int $id) {
+    $this->_tmCaResultCodeSddCustomFieldId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getTmCaResultCodeSddCustomFieldId() {
+    return $this->_tmCaResultCodeSddCustomFieldId;
   }
 
   /**
