@@ -16,36 +16,39 @@ class CRM_AivlGeneric_AivlGenericConfig {
 
   private $_aivlContactId = NULL;
   private $_aivlEmployees = [];
+  private $_assigneeRecordTypeId = NULL;
+  private $_callAssignmentActivityTypeId = NULL;
   private $_completedActivityStatusId = NULL;
+  private $_defaultLocationTypeId = NULL;
   private $_expiredMembershipStatusId = NULL;
   private $_femaleGenderId = NULL;
+  private $_mailingListGroupTypeId = NULL;
+  private $_mailingListGroupTypeName = NULL;
   private $_maleGenderId = NULL;
+  private $_mobilePhoneTypeId = NULL;
+  private $_petitionCampaignTypeId = NULL;
+  private $_phonePhoneTypeId = NULL;
   private $_prefixOptionGroupId = NULL;
-  private $_callAssignmentActivityTypeId = NULL;
-  private $_welkomstPakketActivityTypeId = NULL;
-  private $_tmCallAssignmentTable = NULL;
-  private $_tmCaResultCodeCustomFieldId = NULL;
-  private $_tmCaResultAgentCustomFieldId = NULL;
-  private $_tmCaResultReasonNoCustomFieldId = NULL;
-  private $_tmCaCallDateCustomFieldId = NULL;
-  private $_tmCaResultUploadDateCustomFieldId = NULL;
-  private $_tmCaResultMandateCodeColumn = NULL;
-  private $_tmCaResultMandateCodeNewCustomFieldId = NULL;
+  private $_sourceRecordTypeId = NULL;
+  private $_targetRecordTypeId = NULL;
   private $_tmCaAgencyReferenceCustomFieldId = NULL;
+  private $_tmCaCallDateCustomFieldId = NULL;
+  private $_tmCallAssignmentTable = NULL;
   private $_tmCaResultAmountCustomFieldId = NULL;
+  private $_tmCaResultAgentCustomFieldId = NULL;
+  private $_tmCaResultCodeCustomFieldId = NULL;
+  private $_tmCaResultEndDateCustomFieldId = NULL;
   private $_tmCaResultFreqIntervalCustomFieldId = NULL;
   private $_tmCaResultFreqUnitCustomFieldId = NULL;
   private $_tmCaResultIbanCustomFieldId = NULL;
-  private $_tmCaResultEndDateCustomFieldId = NULL;
+  private $_tmCaResultMandateCodeColumn = NULL;
+  private $_tmCaResultMandateCodeNewCustomFieldId = NULL;
+  private $_tmCaResultReasonNoCustomFieldId = NULL;
   private $_tmCaResultStartDateCustomFieldId = NULL;
+  private $_tmCaResultUploadDateCustomFieldId = NULL;
   private $_tmCaResultCodeSddCustomFieldId = NULL;
   private $_toCheckActivityTypeId = NULL;
-  private $_assigneeRecordTypeId = NULL;
-  private $_sourceRecordTypeId = NULL;
-  private $_targetRecordTypeId = NULL;
-  private $_petitionCampaignTypeId = NULL;
-  private $_mailingListGroupTypeId = NULL;
-  private $_mailingListGroupTypeName = NULL;
+  private $_welkomstPakketActivityTypeId = NULL;
 
   /**
    * CRM_AivlGeneric_AivlGenericConfig constructor.
@@ -526,6 +529,51 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getAivlEmployees() {
     return $this->_aivlEmployees;
+  }
+
+  /**
+   * @param int|null $id
+   * @return void
+   */
+  public function setDefaultLocationTypeId(?int $id) {
+    $this->_defaultLocationTypeId = $id;
+  }
+
+  /**
+   * @return int|null
+   */
+  public function getDefaultLocationTypeId(): ?int {
+    return $this->_defaultLocationTypeId;
+  }
+
+  /**
+   * @param int|null $id
+   * @return void
+   */
+  public function setMobilePhoneTypeId(?int $id) {
+    $this->_mobilePhoneTypeId = $id;
+  }
+
+  /**
+   * @return int|null
+   */
+  public function getMobilePhoneTypeId(): ?int {
+    return $this->_mobilePhoneTypeId;
+  }
+
+  /**
+   * @param int|null $id
+   * @return void
+   */
+  public function setPhonePhoneTypeId(?int $id) {
+    $this->_phonePhoneTypeId = $id;
+  }
+
+  /**
+   * @return int|null
+   */
+  public function getPhonePhoneTypeId(): ?int {
+    return $this->_phonePhoneTypeId;
   }
 
   /**

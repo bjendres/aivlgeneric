@@ -33,8 +33,50 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setCustomData($definition);
     $this->setActivityStatus($definition);
     $this->setCampaignTypeId($definition);
+    $this->setDefaultLocationType($definition);
+    $this->setPhoneTypes($definition);
     $this->setWelkomstPakketTypeCustomField($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the mobile and phone phone type ids
+   *
+   * @param Definition $definition
+   * @return void
+   */
+  private function setPhoneTypes(Definition &$definition) {
+    $query = "SELECT cov.name, cov.value
+        FROM civicrm_option_value cov JOIN civicrm_option_group cog ON cog.id = cov.option_group_id
+        WHERE cog.name = %1 AND cov.name IN (%2, %3)";
+    $dao = \CRM_Core_DAO::executeQuery($query, [
+      1 => ["phone_type", "String"],
+      2 => ["Mobile", "String"],
+      3 => ["Phone", "String"],
+      ]);
+    while ($dao->fetch()) {
+      switch ($dao->name) {
+        case "Mobile":
+          $definition->addMethodCall('setMobilePhoneTypeId', [(int) $dao->value]);
+          break;
+        case "Phone":
+          $definition->addMethodCall('setPhonePhoneTypeId', [(int) $dao->value]);
+          break;
+      }
+    }
+  }
+
+  /**
+   * Method to set the default location type id
+   *
+   * @param Definition $definition
+   * @return void
+   */
+  private function setDefaultLocationType(Definition &$definition) {
+    $locationTypeId = \CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_location_type WHERE is_default = TRUE");
+    if ($locationTypeId) {
+      $definition->addMethodCall('setDefaultLocationTypeId', [(int) $locationTypeId]);
+    }
   }
 
   /**
