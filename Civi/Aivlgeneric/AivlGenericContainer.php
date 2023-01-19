@@ -35,8 +35,23 @@ class AivlGenericContainer implements CompilerPassInterface {
     $this->setCampaignTypeId($definition);
     $this->setDefaultLocationType($definition);
     $this->setPhoneTypes($definition);
+    $this->setRelationshipTypes($definition);
     $this->setWelkomstPakketTypeCustomField($definition);
     $container->setDefinition('aivlgeneric', $definition);
+  }
+
+  /**
+   * Method to set the relationship type ids
+   *
+   * @param Definition $definition
+   * @return void
+   */
+  private function setRelationshipTypes(Definition &$definition) {
+    $query = "SELECT id FROM civicrm_relationship_type WHERE name_a_b = %1";
+    $id = \CRM_Core_DAO::singleValueQuery($query, [1 => ["Employee of", "String"]]);
+    if ($id) {
+      $definition->addMethodCall('setEmployeeRelationshipTypeId', [(int) $id]);
+    }
   }
 
   /**

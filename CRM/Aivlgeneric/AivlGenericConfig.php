@@ -20,6 +20,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_callAssignmentActivityTypeId = NULL;
   private $_completedActivityStatusId = NULL;
   private $_defaultLocationTypeId = NULL;
+  private $_employeeRelationshipTypeId = NULL;
   private $_expiredMembershipStatusId = NULL;
   private $_femaleGenderId = NULL;
   private $_mailingListGroupTypeId = NULL;
@@ -574,6 +575,21 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getPhonePhoneTypeId(): ?int {
     return $this->_phonePhoneTypeId;
+  }
+
+  /**
+   * @param int|null $id
+   * @return void
+   */
+  public function setEmployeeRelationshipTypeId(?int $id) {
+    $this->_employeeRelationshipTypeId = $id;
+  }
+
+  /**
+   * @return int|null
+   */
+  public function getEmployeeRelationshipTypeId(): ?int {
+    return $this->_employeeRelationshipTypeId;
   }
 
   /**
