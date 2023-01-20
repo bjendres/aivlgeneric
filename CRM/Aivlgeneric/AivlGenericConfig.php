@@ -621,4 +621,75 @@ class CRM_AivlGeneric_AivlGenericConfig {
     }
   }
 
+  /**
+   * uses SMARTY to render a template
+   *
+   * @return string
+   */
+  public function renderTemplate($templatePath, $vars) {
+    $smarty = CRM_Core_Smarty::singleton();
+    // first backup original variables, since smarty instance is a singleton
+    $oldVars = $smarty->get_template_vars();
+    $backupFrame = array();
+    foreach ($vars as $key => $value) {
+      $key = str_replace(' ', '_', $key);
+      $backupFrame[$key] = isset($oldVars[$key]) ? $oldVars[$key] : NULL;
+    }
+    // then assign new variables
+    foreach ($vars as $key => $value) {
+      $key = str_replace(' ', '_', $key);
+      $smarty->assign($key, $value);
+    }
+    // create result
+    $result =  $smarty->fetch($templatePath);
+   // reset smarty variables
+    foreach ($backupFrame as $key => $value) {
+      $key = str_replace(' ', '_', $key);
+      $smarty->assign($key, $value);
+    }
+    return $result;
+  }
+
+  /**
+   * Method to get a contacts display name
+   *
+   * @param int|null $contactId
+   * @return string|null
+   */
+  public function getContactDisplayName(?int $contactId): ?string {
+    $displayName = NULL;
+    if ($contactId) {
+      try {
+        $contacts = \Civi\Api4\Contact::get()
+          ->addSelect('display_name')
+          ->addWhere('id', '=', $contactId)
+          ->setLimit(1)
+          ->execute();
+        $contact = $contacts->first();
+        if (isset($contact['display_name'])) {
+          $displayName = $contact['display_name'];
+        }
+      }
+      catch (API_Exception $ex) {
+      }
+    }
+    return $displayName;
+  }
+
+  /**
+   * Method to create contact URL
+   *
+   * @param int|null $contactId
+   * @param $absolute
+   * @return string|null
+   */
+  public function setContactUrl(?int $contactId, $absolute = FALSE): ?string {
+    $contactUrl = NULL;
+    if ($contactId) {
+      $contactUrl = CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid='.$contactId, $absolute);
+    }
+    return $contactUrl;
+  }
+
+
 }
