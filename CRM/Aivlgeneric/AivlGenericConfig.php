@@ -691,5 +691,55 @@ class CRM_AivlGeneric_AivlGenericConfig {
     return $contactUrl;
   }
 
+  /**
+   * Method to get option value label
+   *
+   * @param string $optionGroupName
+   * @param int $value
+   * @return string|null
+   */
+  public function getOptionValueLabel(string $optionGroupName, int $value): ?string {
+    $foundLabel = NULL;
+    try {
+      $optionValues = \Civi\Api4\OptionValue::get()
+        ->addSelect('label')
+        ->addWhere('option_group_id:name', '=', $optionGroupName)
+        ->addWhere('value', '=', $value)
+        ->setLimit(1)
+        ->execute();
+      $optionValue = $optionValues->first();
+      if ($optionValue['label']) {
+        $foundLabel = $optionValue['label'];
+      }
+    }
+    catch (API_Exception $ex) {
+    }
+    return $foundLabel;
+  }
+
+  /**
+   * Method to get option value list for option group
+   *
+   * @param string $optionGroupName
+   * @return array
+   */
+  public function getOptionGroupList(string $optionGroupName): array {
+    $optionGroupList = [];
+    try {
+      $optionValues = \Civi\Api4\OptionValue::get()
+        ->addSelect('label', 'value')
+        ->addWhere('option_group_id:name', '=', $optionGroupName)
+        ->addWhere('is_active', '=', TRUE)
+        ->execute();
+      foreach ($optionValues as $optionValue) {
+        if ($optionValue['value'] && $optionValue['label']) {
+          $optionGroupList[$optionValue['value']] = $optionValue['label'];
+        }
+      }
+    }
+    catch (API_Exception $ex) {
+    }
+    return $optionGroupList;
+  }
 
 }
