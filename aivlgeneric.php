@@ -2,6 +2,7 @@
 
 require_once 'aivlgeneric.civix.php';
 use CRM_Aivlgeneric_ExtensionUtil as E;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use \Symfony\Component\DependencyInjection\ContainerBuilder;
 use \Symfony\Component\DependencyInjection\Definition;
 
@@ -12,6 +13,7 @@ use \Symfony\Component\DependencyInjection\Definition;
  */
 function aivlgeneric_civicrm_container(ContainerBuilder $container) {
   $container->addCompilerPass(new Civi\Aivlgeneric\AivlGenericContainer());
+  $container->addCompilerPass(new Civi\Aivlgeneric\DataProcessor\CompilerPass(), PassConfig::TYPE_OPTIMIZE);
 }
 
 /**
