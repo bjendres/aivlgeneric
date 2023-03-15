@@ -116,8 +116,8 @@ class IsAivlEmployeeFilter extends AbstractFieldFilterHandler {
 
   protected function getOperatorOptions(FieldSpecification $fieldSpec): array {
     return array(
-      'IN' => E::ts('Is AIVL Employee'),
-      'NOT IN' => E::ts('Is not an AIVL Employee'),
+      'null' => E::ts('Is AIVL Employee'),
+      'not null' => E::ts('Is not an AIVL Employee'),
     );
   }
 
@@ -136,6 +136,10 @@ class IsAivlEmployeeFilter extends AbstractFieldFilterHandler {
     } catch (Exception $e) {
     }
     if ($dataFlow instanceof SqlDataFlow) {
+      $op = 'IN';
+      if ($filter['op'] == 'IS NOT NULL') {
+        $op = 'NOT IN';
+      }
       /** @var \CRM_AivlGeneric_AivlGenericConfig $aivlContainer */
       $aivlContainer = \Civi::service('aivlgeneric');
       $tableAlias = $this->getTableAlias($dataFlow);
@@ -143,7 +147,7 @@ class IsAivlEmployeeFilter extends AbstractFieldFilterHandler {
       $fieldAlias = $this->inputFieldSpecification->alias;
       $aivlEmployeeRelTypeId = $aivlContainer->getEmployeeRelationshipTypeId();
       $aivlContactId = $aivlContainer->getAivlContactId();
-      $sqlStatement = "`$tableAlias`.`$fieldName` {$filter['op']} (
+      $sqlStatement = "`$tableAlias`.`$fieldName` $op (
         SELECT `contact_id_a`
         FROM `civicrm_relationship` `aivl_employee_$fieldAlias`
         WHERE `is_active` = '1'
