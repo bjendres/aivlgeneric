@@ -16,6 +16,7 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->createWelkomstPakketIfNotExists();
     $this->createFirstYearGroupsIfNotExists();
     $this->createPrimaryPetitionField();
+    $this->createDatabaseIndexOnContributionTable();
   }
 
   /**
@@ -49,6 +50,12 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
   public function upgrade_1020() {
     $this->ctx->log->info("Applying update 1020 - add primary petition custom field");
     $this->createPrimaryPetitionField();
+    return TRUE;
+  }
+
+  public function upgrade_1021() {
+    $this->ctx->log->info("Applying update 1021 - add database index on contribution table");
+    $this->createDatabaseIndexOnContributionTable();
     return TRUE;
   }
 
@@ -340,6 +347,23 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
       catch (CiviCRM_API3_Exception $ex) {
         Civi::log()->error(E::ts('Could not create Welkomstpakket activity type id in ') . __METHOD__);
       }
+    }
+  }
+
+  /**
+   * Create database index on contribution table
+   * on contact_id, is_test financial_type_id, status_id and receive date.
+   *
+   * This index optimized the dataprocessor for Direct Mailing.
+   * See https://issues.civicoop.org/issues/10202
+   *
+   * @return void
+   */
+  private function createDatabaseIndexOnContributionTable() {
+    try {
+      \CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_contribution` ADD INDEX aivl_contact_id_type_status_date_istest (`contact_id`, `is_test`, `financial_type_id`, `contribution_status_id`, `receive_date`);");
+    } catch (\PEAR_Exception $e) {
+      // Do nothing. The index probably already exists.
     }
   }
 
