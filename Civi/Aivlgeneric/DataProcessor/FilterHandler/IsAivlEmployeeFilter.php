@@ -153,7 +153,7 @@ class IsAivlEmployeeFilter extends AbstractFieldFilterHandler {
         WHERE `is_active` = '1'
         AND `aivl_employee_$fieldAlias`.`relationship_type_id` = {$aivlEmployeeRelTypeId}
         AND `aivl_employee_$fieldAlias`.`contact_id_b` ={$aivlContactId}
-        ";
+        )";
       $this->whereClause = new SqlDataFlow\PureSqlStatementClause($sqlStatement, FALSE);
       $dataFlow->addWhereClause($this->whereClause);
     }
