@@ -116,8 +116,8 @@ class IsAivlEmployeeFilter extends AbstractFieldFilterHandler {
 
   protected function getOperatorOptions(FieldSpecification $fieldSpec): array {
     return array(
-      'null' => E::ts('Is AIVL Employee'),
-      'not null' => E::ts('Is not an AIVL Employee'),
+      'IN' => E::ts('Is AIVL Employee'),
+      'NOT IN' => E::ts('Is not an AIVL Employee'),
     );
   }
 
