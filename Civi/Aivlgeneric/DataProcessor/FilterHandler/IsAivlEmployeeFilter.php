@@ -155,7 +155,7 @@ class IsAivlEmployeeFilter extends AbstractFieldFilterHandler {
         AND `aivl_employee_$fieldAlias`.`contact_id_b` ={$aivlContactId}
         )";
       $this->whereClause = new SqlDataFlow\PureSqlStatementClause($sqlStatement, FALSE);
-      $dataFlow->addWhereClause($this->whereClause);
+      $this->filterCollection->addWhere($this->whereClause);
     }
   }
 
