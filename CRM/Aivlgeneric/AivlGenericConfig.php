@@ -19,6 +19,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
   private $_assigneeRecordTypeId = NULL;
   private $_callAssignmentActivityTypeId = NULL;
   private $_completedActivityStatusId = NULL;
+  private $_scheduledActivityStatusId = NULL;
   private $_defaultLocationTypeId = NULL;
   private $_employeeRelationshipTypeId = NULL;
   private $_expiredMembershipStatusId = NULL;
@@ -96,6 +97,20 @@ class CRM_AivlGeneric_AivlGenericConfig {
    */
   public function getCompletedActivityStatusId() {
     return $this->_completedActivityStatusId;
+  }
+
+  /**
+   * @param int
+   */
+  public function setScheduledActivityStatusId($id) {
+    $this->_scheduledActivityStatusId = $id;
+  }
+
+  /**
+   * @return int
+   */
+  public function getScheduledActivityStatusId() {
+    return $this->_scheduledActivityStatusId;
   }
 
   /**

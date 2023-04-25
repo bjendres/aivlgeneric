@@ -181,16 +181,24 @@ class AivlGenericContainer implements CompilerPassInterface {
    * @param $definition
    */
   private function setActivityStatus(&$definition) {
-    $query = "SELECT cov.value FROM civicrm_option_value cov
+    $query = "SELECT cov.value, cov.name FROM civicrm_option_value cov
         JOIN civicrm_option_group cog ON cov.option_group_id = cog.id
-        WHERE cog.name = %1 AND cov.name = %2";
+        WHERE cog.name = %1 AND cov.name = %2 AND cov.name = %3";
     $queryParams = [
       1 => ["activity_status", "String"],
       2 => ["Completed", "String"],
+      3 => ["Scheduled", "String"],
     ];
-    $value = \CRM_Core_DAO::singleValueQuery($query, $queryParams);
-    if ($value) {
-      $definition->addMethodCall('setCompletedActivityStatusId', [(int) $value]);
+    $dao = \CRM_Core_DAO::executeQuery($query, $queryParams);
+    while ($dao->fetch()) {
+      switch ($dao->name) {
+        case "Completed":
+          $definition->addMethodCall('setCompletedActivityStatusId', [(int) $dao->value]);
+          break;
+        case "Scheduled":
+          $definition->addMethodCall('setScheduledActivityStatusId', [(int) $dao->value]);
+          break;
+      }
     }
   }
 
