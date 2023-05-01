@@ -14,4 +14,9 @@
   <div class="content">{$form.status_ids.html}</div>
   <div class="clear"></div>
 </div>
+<div class="crm-section">
+  <div class="label">{$form.column.label}</div>
+  <div class="content">{$form.column.html}</div>
+  <div class="clear"></div>
+</div>
 {/crmScope}
