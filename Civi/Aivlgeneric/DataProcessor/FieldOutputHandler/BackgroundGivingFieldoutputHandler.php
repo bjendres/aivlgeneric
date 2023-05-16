@@ -117,7 +117,7 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
         ]
       ]);
       if ($lastGiftDao->fetch()) {
-        $totalAmount = number_format((float) $dao->total_amount, 2, '.', ',');
+        $totalAmount = number_format((float) $lastGiftDao->total_amount, 2, '.', ',');
         $financialTypeOptions = $this->getFinancialTypeOptions();
         $financialType = '';
         if (isset($financialTypeOptions[$lastGiftDao->financial_type_id])) {
