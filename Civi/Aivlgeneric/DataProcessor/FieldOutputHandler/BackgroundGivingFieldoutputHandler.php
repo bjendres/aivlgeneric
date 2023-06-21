@@ -34,6 +34,10 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
 
   protected $financialTypeIds = [];
 
+  protected $dataPerContactId = [];
+
+  protected $column = 'all';
+
   /**
    * Initialize the processor
    *
@@ -45,6 +49,7 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
     parent::initialize($alias, $title, $configuration);
     $this->statusIds = $configuration['status_ids'];
     $this->financialTypeIds = $configuration['financial_type_ids'];
+    $this->column = $configuration['column'] ?? 'all';
   }
 
 
@@ -59,7 +64,7 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
   public function formatField($rawRecord, $formattedRecord) {
     $contactId = $rawRecord[$this->inputFieldSpec->alias] ?? '';
     $formattedValue = '';
-    if (!empty($contactId)) {
+    if (!empty($contactId) && !isset($this->dataPerContactId[$contactId])) {
       $sql = "SELECT
         MIN(`receive_date`) as `min_receive_date`,
         MAX(`receive_date`) as `max_receive_date`,
@@ -84,8 +89,8 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
       }
       $sql .= " GROUP BY `contact_id`";
       $lastGiftSql .= " ORDER BY `receive_date` DESC LIMIT 0, 1";
-      $dao = \CRM_Core_DAO::executeQuery($sql, [1=>[$contactId, 'Integer']]);
-      $texts = [];
+      $dao = \CRM_Core_DAO::executeQuery($sql, [1 => [$contactId, 'Integer']]);
+      $data = [];
       if ($dao->fetch()) {
         $today = new DateTime();
         $firstGift = new DateTime($dao->min_receive_date);
@@ -95,21 +100,41 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
         $durationInYears = $duration->format('%y');
         $givingDuration = date_diff($lastGift, $firstGift);
         $givingDurationInYears = $givingDuration->format('%y');
-        $texts[] = E::ts('Reeds %1 jaar schenker', [1=>$durationInYears]);
-        $texts[] = E::ts('Eerste schenking %1, laatste schenking %2', [1=>$firstGift->format('d/m/Y'), 2=>$lastGift->format('d/m/Y')]);
-        $texts[] = E::ts('Gaf in totaal reeds %1 euro, de afgelopen %2 jaar', [1=>$totalAmount, 2=>$givingDurationInYears]);
+        $data['duration_year'] = E::ts('Reeds %1 jaar schenker', [1 => $durationInYears]);
+        $data['first_last_gift'] = E::ts('Eerste schenking %1, laatste schenking %2', [
+          1 => $firstGift->format('d/m/Y'),
+          2 => $lastGift->format('d/m/Y')
+        ]);
+        $data['total_amount_duration'] = E::ts('Gaf in totaal reeds %1 euro, de afgelopen %2 jaar', [
+          1 => $totalAmount,
+          2 => $givingDurationInYears
+        ]);
       }
-      $lastGiftDao = \CRM_Core_DAO::executeQuery($lastGiftSql, [1=>[$contactId, 'Integer']]);
+      $lastGiftDao = \CRM_Core_DAO::executeQuery($lastGiftSql, [
+        1 => [
+          $contactId,
+          'Integer'
+        ]
+      ]);
       if ($lastGiftDao->fetch()) {
-        $totalAmount = number_format((float) $dao->total_amount, 2, '.', ',');
+        $totalAmount = number_format((float) $lastGiftDao->total_amount, 2, '.', ',');
         $financialTypeOptions = $this->getFinancialTypeOptions();
         $financialType = '';
         if (isset($financialTypeOptions[$lastGiftDao->financial_type_id])) {
           $financialType = $financialTypeOptions[$lastGiftDao->financial_type_id];
         }
-        $texts[] = E::ts('Laatste gift was %1 euro, van het type %2', [1=>$totalAmount, 2=>$financialType]);
+        $data['info_most_recent_gift'] = E::ts('Laatste gift was %1 euro, van het type %2', [
+          1 => $totalAmount,
+          2 => $financialType
+        ]);
       }
-      $formattedValue = implode(" // ", $texts);
+      $this->dataPerContactId[$contactId] = $data;
+    }
+    if (!empty($contactId) && isset($this->dataPerContactId[$contactId])) {
+      $formattedValue = implode(" // ", $this->dataPerContactId[$contactId]);
+      if (isset($this->dataPerContactId[$contactId][$this->column])) {
+        $formattedValue = $this->dataPerContactId[$contactId][$this->column];
+      }
     }
     $output = new FieldOutput($formattedValue);
     $output->formattedValue = $formattedValue;
@@ -131,18 +156,23 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
    *
    * @return void
    */
-  public function buildConfigurationForm(CRM_Core_Form $form, $field=array()): void {
+  public function buildConfigurationForm(CRM_Core_Form $form, $field = []): void {
     parent::buildConfigurationForm($form, $field);
     try {
-      $form->add('select', "status_ids", E::ts('Contribution Status Ids'), $this->getControbitionStatusOptions(), false, [
+      $form->add('select', "status_ids", E::ts('Contribution Status Ids'), $this->getControbitionStatusOptions(), FALSE, [
         'class' => 'crm-select2 huge',
         'multiple' => TRUE,
         'placeholder' => E::ts('- Any status -'),
       ]);
-      $form->add('select', "financial_type_ids", E::ts('Financial Type Ids'), $this->getFinancialTypeOptions(), false, [
+      $form->add('select', "financial_type_ids", E::ts('Financial Type Ids'), $this->getFinancialTypeOptions(), FALSE, [
         'class' => 'crm-select2 huge',
         'multiple' => TRUE,
         'placeholder' => E::ts('- Any financial type -'),
+      ]);
+      $form->add('select', "column", E::ts('Column'), $this->getColumnOptions(), FALSE, [
+        'class' => 'crm-select2 huge',
+        'required' => TRUE,
+        'placeholder' => E::ts('- Select a column -'),
       ]);
     } catch (CRM_Core_Exception $e) {
     }
@@ -154,6 +184,9 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
       }
       if (isset($configuration['financial_type_ids'])) {
         $defaults['financial_type_ids'] = $configuration['financial_type_ids'];
+      }
+      if (isset($configuration['column'])) {
+        $defaults['column'] = $configuration['column'];
       }
       $form->setDefaults($defaults);
     }
@@ -170,6 +203,7 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
     $configuration = parent::processConfiguration($submittedValues);
     $configuration['status_ids'] = $submittedValues['status_ids'];
     $configuration['financial_type_ids'] = $submittedValues['financial_type_ids'];
+    $configuration['column'] = $submittedValues['column'];
     return $configuration;
   }
 
@@ -179,42 +213,50 @@ class BackgroundGivingFieldoutputHandler extends AbstractSimpleFieldOutputHandle
    *
    * @return string|null
    */
-  public function getConfigurationTemplateFileName():? string {
+  public function getConfigurationTemplateFileName(): ?string {
     return "CRM/Aivlgeneric/Dataprocessor/Form/Field/Configuration/BackgroundGivingFieldOutputHandler.tpl";
   }
 
   protected function getControbitionStatusOptions(): array {
-      if (empty($this->statusOptions)) {
-        $this->statusOptions = [];
-        try {
-          $contributionStatusApi = civicrm_api3('OptionValue', 'get', [
-            'option_group_id' => 'contribution_status',
-            'options' => ['limit' => 0]
-          ]);
-          foreach ($contributionStatusApi['values'] as $option) {
-            $this->statusOptions[$option['value']] = $option['label'];
-          }
-        } catch (CiviCRM_API3_Exception $e) {
+    if (empty($this->statusOptions)) {
+      $this->statusOptions = [];
+      try {
+        $contributionStatusApi = civicrm_api3('OptionValue', 'get', [
+          'option_group_id' => 'contribution_status',
+          'options' => ['limit' => 0]
+        ]);
+        foreach ($contributionStatusApi['values'] as $option) {
+          $this->statusOptions[$option['value']] = $option['label'];
         }
+      } catch (CiviCRM_API3_Exception $e) {
       }
-      return $this->statusOptions;
     }
+    return $this->statusOptions;
+  }
 
   protected function getFinancialTypeOptions(): array {
-      if (empty($this->financialTypeOptions)) {
-        $this->financialTypeOptions = [];
-        try {
-          $financialTypeApi = civicrm_api3('FinancialType', 'get', [
-            'options' => ['limit' => 0],
-          ]);
-          foreach ($financialTypeApi['values'] as $financialType) {
-            $this->financialTypeOptions[$financialType['id']] = $financialType['name'];
-          }
-        } catch (CiviCRM_API3_Exception $e) {
+    if (empty($this->financialTypeOptions)) {
+      $this->financialTypeOptions = [];
+      try {
+        $financialTypeApi = civicrm_api3('FinancialType', 'get', [
+          'options' => ['limit' => 0],
+        ]);
+        foreach ($financialTypeApi['values'] as $financialType) {
+          $this->financialTypeOptions[$financialType['id']] = $financialType['name'];
         }
+      } catch (CiviCRM_API3_Exception $e) {
       }
-      return $this->financialTypeOptions;
     }
+    return $this->financialTypeOptions;
+  }
 
-
+  protected function getColumnOptions(): array {
+    return [
+      'all' => E::ts("Alle kolommen - Gescheiden door \\\\"),
+      'duration_year' => E::ts('Aantal jaar donateur'),
+      'first_last_gift' => E::ts('Datum eerste en laatste gift'),
+      'total_amount_duration' => E::ts('Totaal gegegeven en totale periode'),
+      'info_most_recent_gift' => E::ts('Info over de laatste gift'),
+    ];
+  }
 }

@@ -32,8 +32,13 @@ class CompilerPass implements CompilerPassInterface {
       $factoryDefinition = $container->getDefinition('data_processor_factory');
       $factoryDefinition->addMethodCall('addFilter', [
         'aivlsepadataprocessor_mandate', 'Civi\Aivlgeneric\DataProcessor\FilterHandler\IsAivlEmployeeFilter', E::ts('AIVL: Contact is (not) AIVL Employee')]);
+      $factoryDefinition->addMethodCall('addFilter', [
+        'aivldatepicker', 'Civi\Aivlgeneric\DataProcessor\FilterHandler\DatePickerFilter', E::ts('AIVL: Date Picker')]);
       $factoryDefinition->addMethodCall('addOutputHandler', [
         'aivl_background_giving', 'Civi\Aivlgeneric\DataProcessor\FieldOutputHandler\BackgroundGivingFieldoutputHandler', E::ts("AIVL: Donor Background Giving")
+      ]);
+      $factoryDefinition->addMethodCall('addDataSource', [
+        'aivl_optimized_aggregatedcontribution', 'Civi\Aivlgeneric\DataProcessor\Source\Contribution\OptimizedAggregatedContributionSource', E::ts('AIVL: Contribution (Aggregated and Optimized)')
       ]);
     }
   }
