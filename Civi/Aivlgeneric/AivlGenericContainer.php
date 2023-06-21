@@ -183,7 +183,7 @@ class AivlGenericContainer implements CompilerPassInterface {
   private function setActivityStatus(&$definition) {
     $query = "SELECT cov.value, cov.name FROM civicrm_option_value cov
         JOIN civicrm_option_group cog ON cov.option_group_id = cog.id
-        WHERE cog.name = %1 AND cov.name = %2 AND cov.name = %3";
+        WHERE cog.name = %1 AND cov.name IN(%2, %3)";
     $queryParams = [
       1 => ["activity_status", "String"],
       2 => ["Completed", "String"],
