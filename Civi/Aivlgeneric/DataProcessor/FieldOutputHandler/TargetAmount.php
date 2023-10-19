@@ -41,15 +41,14 @@ class TargetAmount extends AbstractFormattedNumberOutputHandler {
 
     if (isset($field['configuration'])) {
       $configuration = $field['configuration'];
-      $defaults = [];
       if (isset($configuration['min_number'])) {
-        $defaults['min_number'] = $configuration['min_number'];
+        $this->defaults['min_number'] = $configuration['min_number'];
       }
       if (isset($configuration['max_number'])) {
-        $defaults['max_number'] = $configuration['max_number'];
+        $this->defaults['max_number'] = $configuration['max_number'];
       }
-      if (count($defaults)) {
-        $form->setDefaults($defaults);
+      if (is_array($this->defaults) && count($this->defaults)) {
+        $form->setDefaults($this->defaults);
       }
     }
   }
