@@ -17,8 +17,8 @@
   <classloader>
     <psr4 prefix="Civi\" path="Civi" />
   </classloader>
-  <releaseDate>2023-06-21</releaseDate>
-  <version>1.18</version>
+  <releaseDate>2023-10-18</releaseDate>
+  <version>1.19</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>4.7</ver>
