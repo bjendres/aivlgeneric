@@ -19,6 +19,8 @@
 namespace Civi\Aivlgeneric\DataProcessor\Source\Contribution;
 
 use Civi\DataProcessor\DataFlow\SqlTableDataFlow;
+use Civi\DataProcessor\DataSpecification\DataSpecification;
+use Civi\DataProcessor\DataSpecification\FieldSpecification;
 use Civi\DataProcessor\Source\Contribution\AggregatedContributionSource;
 use CRM_Aivlgeneric_ExtensionUtil as E;
 
@@ -50,6 +52,29 @@ class OptimizedAggregatedContributionSource extends AggregatedContributionSource
     }
     return $return;
   }
+
+  /**
+   * @param \Civi\DataProcessor\DataSpecification\FieldSpecification $fieldSpecification
+   *
+   * @return void
+   * @throws \Exception
+   */
+  public function ensureFieldInSource(FieldSpecification $fieldSpecification) {
+    if ($fieldSpecification->name == 'count' && $this->isAggregationEnabled()) {
+      $this->ensureEntity();
+      $countField = new FieldSpecification('id', 'Integer', E::ts('Count'), null, 'count');
+      $countField->setMySqlFunction('COUNT');
+      $this->aggretated_table_dataflow->getDataSpecification()->addFieldSpecification('count', $countField);
+    } elseif ($fieldSpecification->name == 'id' && $this->isAggregationEnabled()) {
+      $this->ensureEntity();
+      $idField = new FieldSpecification('id', 'Integer', E::ts('Contribution Id'), null, 'id');
+      $idField->setMySqlFunction('MAX');
+      $this->aggretated_table_dataflow->getDataSpecification()->addFieldSpecification('id', $idField);
+    } else {
+      parent::ensureFieldInSource($fieldSpecification);
+    }
+  }
+
 
 
 }
