@@ -675,12 +675,11 @@ class CRM_AivlGeneric_AivlGenericConfig {
     $displayName = NULL;
     if ($contactId) {
       try {
-        $contacts = \Civi\Api4\Contact::get()
+        $contact = \Civi\Api4\Contact::get()
           ->addSelect('display_name')
           ->addWhere('id', '=', $contactId)
           ->setLimit(1)
-          ->execute();
-        $contact = $contacts->first();
+          ->setCheckPermissions(FALSE)->execute()->first();
         if (isset($contact['display_name'])) {
           $displayName = $contact['display_name'];
         }
@@ -716,13 +715,12 @@ class CRM_AivlGeneric_AivlGenericConfig {
   public function getOptionValueLabel(string $optionGroupName, int $value): ?string {
     $foundLabel = NULL;
     try {
-      $optionValues = \Civi\Api4\OptionValue::get()
+      $optionValue = \Civi\Api4\OptionValue::get()
         ->addSelect('label')
         ->addWhere('option_group_id:name', '=', $optionGroupName)
         ->addWhere('value', '=', $value)
         ->setLimit(1)
-        ->execute();
-      $optionValue = $optionValues->first();
+        ->setCheckPermissions(FALSE)->execute()->first();
       if ($optionValue['label']) {
         $foundLabel = $optionValue['label'];
       }
@@ -745,7 +743,7 @@ class CRM_AivlGeneric_AivlGenericConfig {
         ->addSelect('label', 'value')
         ->addWhere('option_group_id:name', '=', $optionGroupName)
         ->addWhere('is_active', '=', TRUE)
-        ->execute();
+        ->setCheckPermissions(FALSE)->execute();
       foreach ($optionValues as $optionValue) {
         if ($optionValue['value'] && $optionValue['label']) {
           $optionGroupList[$optionValue['value']] = $optionValue['label'];

@@ -127,7 +127,7 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
           ->addValue('is_active', TRUE)
           ->addValue('group_type', [Civi::service('aivlgeneric')->getMailingListGroupTypeId()])
           ->addValue('is_reserved', TRUE)
-          ->execute();
+          ->setCheckPermissions(FALSE)->execute();
       }
     }
     catch (API_Exception $ex) {

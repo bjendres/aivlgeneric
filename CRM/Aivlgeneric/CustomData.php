@@ -36,12 +36,11 @@ class CRM_Aivlgeneric_CustomData {
   public function getCustomGroupId(string $customGroupName, string $extends) {
     if ($this->_hasAPI4) {
       try {
-        $customGroups = \Civi\Api4\CustomGroup::get()
+        $customGroup = \Civi\Api4\CustomGroup::get()
           ->addSelect('id')
           ->addWhere('extends', '=', $extends)
           ->addWhere('name', '=', $customGroupName)
-          ->execute();
-        $customGroup = $customGroups->first();
+          ->setCheckPermissions(FALSE)->execute()->first();
         if ($customGroup['id']) {
           return (int) $customGroup['id'];
         }
@@ -80,12 +79,11 @@ class CRM_Aivlgeneric_CustomData {
   public function getCustomFieldId(int $customGroupId, string $customFieldName) {
     if ($this->_hasAPI4) {
       try {
-        $customFields = \Civi\Api4\CustomField::get()
+        $customField = \Civi\Api4\CustomField::get()
           ->addSelect('id')
           ->addWhere('custom_group_id', '=', $customGroupId)
           ->addWhere('name', '=', $customFieldName)
-          ->execute();
-        $customField = $customFields->first();
+          ->setCheckPermissions(FALSE)->execute()->first();
         if ($customField['id']) {
           return (int) $customField['id'];
         }
@@ -125,7 +123,7 @@ class CRM_Aivlgeneric_CustomData {
         \Civi\Api4\CustomGroup::update()
           ->addWhere('id', '=', $customGroupId)
           ->addValue('is_active', TRUE)
-          ->execute();
+          ->setCheckPermissions(FALSE)->execute();
       }
       catch (API_Exception $ex) {
         Civi::log()->error(E::ts("Could not enable custom group with id ") . $customGroupId
@@ -151,7 +149,7 @@ class CRM_Aivlgeneric_CustomData {
         \Civi\Api4\CustomField::update()
           ->addWhere('id', '=', $customFieldId)
           ->addValue('is_active', TRUE)
-          ->execute();
+          ->setCheckPermissions(FALSE)->execute();
       }
       catch (API_Exception $ex) {
         Civi::log()->error(E::ts("Could not enable custom field with id ") . $customFieldId
@@ -210,7 +208,8 @@ class CRM_Aivlgeneric_CustomData {
         $customGroupData['is_multiple'] = FALSE;
       }
       try {
-        $results = \Civi\Api4\CustomGroup::create()
+        $result = \Civi\Api4\CustomGroup::create()
+          ->setCheckPermissions(FALSE)
           ->addValue('name', $customGroupData['name'])
           ->addValue('title', $customGroupData['title'])
           ->addValue('extends', $customGroupData['extends'])
@@ -219,17 +218,14 @@ class CRM_Aivlgeneric_CustomData {
           ->addValue('is_multiple', FALSE);
         if (isset($customGroupData['extends_entity_column_value']) && !empty($customGroupData['extends_entity_column_value'])) {
           if (is_array($customGroupData['extends_entity_column_value'])) {
-            $results->addValue('extends_entity_column_value', $customGroupData['extends_entity_column_value']);
+            $result->addValue('extends_entity_column_value', $customGroupData['extends_entity_column_value']);
           }
           else {
-            $results->addValue('extends_entity_column_value', [$customGroupData['extends_entity_column_value']]);
+            $result->addValue('extends_entity_column_value', [$customGroupData['extends_entity_column_value']]);
           }
-          $results->execute();
-          foreach ($results as $result) {
-            if (isset($result['id'])) {
-              return $result['id'];
-            }
-            return TRUE;
+          $result->execute()->first();
+          if (isset($result['id'])) {
+            return $result['id'];
           }
         }
       }
@@ -260,7 +256,8 @@ class CRM_Aivlgeneric_CustomData {
         $customFieldData['in_selector'] = FALSE;
       }
       try {
-        $results = \Civi\Api4\CustomField::create()
+        $result = \Civi\Api4\CustomField::create()
+          ->setCheckPermissions(FALSE)
           ->addValue('custom_group_id', $customFieldData['custom_group_id'])
           ->addValue('name', $customFieldData['name'])
           ->addValue('label', $customFieldData['label'])
@@ -271,21 +268,21 @@ class CRM_Aivlgeneric_CustomData {
           ->addValue('column_name', $customFieldData['column_name'])
           ->addValue('in_selector', $customFieldData['in_selector']);
         if (isset($customFieldData['is_view'])) {
-          $results->addValue('is_view', $customFieldData['is_view']);
+          $result->addValue('is_view', $customFieldData['is_view']);
         }
         if (isset($customFieldData['option_group_id']) && !empty($customFieldData['option_group_id'])) {
-          $results->addValue('option_group_id', $customFieldData['option_group_id']);
+          $result->addValue('option_group_id', $customFieldData['option_group_id']);
         }
         if (isset($customFieldData['end_date_years']) && !empty($customFieldData['end_date_years'])) {
-          $results->addValue('end_date_years', $customFieldData['end_date_years']);
+          $result->addValue('end_date_years', $customFieldData['end_date_years']);
         }
         if (isset($customFieldData['start_date_years']) && !empty($customFieldData['start_date_years'])) {
-          $results->addValue('start_date_years', $customFieldData['start_date_years']);
+          $result->addValue('start_date_years', $customFieldData['start_date_years']);
         }
         if (isset($customFieldData['date_format']) && !empty($customFieldData['date_format'])) {
-          $results->addValue('date_format', $customFieldData['date_format']);
+          $result->addValue('date_format', $customFieldData['date_format']);
         }
-        $results->execute();
+        $result->execute()->first();
         return TRUE;
       }
       catch (API_Exception $ex) {
@@ -336,6 +333,26 @@ class CRM_Aivlgeneric_CustomData {
     }
     $jsonData = file_get_contents($jsonFile);
     return json_decode($jsonData, TRUE);
+  }
+
+  /**
+   * Method om een custom veld te verwijderen
+   *
+   * @param string $customGroupName
+   * @param string $customFieldName
+   * @return void
+   */
+  public function deleteCustomField(string $customGroupName, string $customFieldName): void {
+    if ($customGroupName && $customFieldName) {
+      try {
+        \Civi\Api4\CustomField::delete()
+          ->addWhere('custom_group_id:name', '=', $customGroupName)
+          ->addWhere('name', '=', $customFieldName)
+          ->setCheckPermissions(FALSE)->execute();
+      }
+      catch (API_Exception $ex) {
+      }
+    }
   }
 
 }
