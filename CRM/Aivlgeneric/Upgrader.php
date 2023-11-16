@@ -17,6 +17,7 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->createFirstYearGroupsIfNotExists();
     $this->createPrimaryPetitionField();
     $this->createDatabaseIndexOnContributionTable();
+    $this->processPhoneFlagCustomField();
   }
 
   /**
@@ -57,6 +58,45 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->ctx->log->info("Applying update 1021 - add database index on contribution table");
     $this->createDatabaseIndexOnContributionTable();
     return TRUE;
+  }
+  public function upgrade_1022() {
+    $this->ctx->log->info("Applying update 1022 - add phone_flag custom field to petities_metadata and delete inconsistent ones");
+    $this->processPhoneFlagCustomField();
+    return TRUE;
+  }
+
+  /**
+   * Method to create phone flag custom field on petities metadata and delete old inconsistent ones
+   */
+  private function processPhoneFlagCustomField() {
+    $customGroupName = "Petities_metadata";
+    $phoneFlagName = "phone_flag";
+    $deleteNames = ["F_Phone", "Phone", "Phone_flag"];
+    $customData = new CRM_Aivlgeneric_CustomData();
+    try {
+      $customGroup = \Civi\Api4\CustomGroup::get()
+        ->addSelect('id')
+        ->addWhere('name', '=', $customGroupName)
+        ->setLimit(1)->setCheckPermissions(FALSE)->execute()->first();
+      if (isset($customGroup['id'])) {
+        foreach ($deleteNames as $deleteName) {
+          $customData->deleteCustomField($customGroupName, $deleteName);
+        }
+        $customData->createCustomField([
+          'custom_group_id' => $customGroup['id'],
+          'name' => $phoneFlagName,
+          'column_name' => $phoneFlagName,
+          'label' => "Phone Flag",
+          'data_type' => "Boolean",
+          'html_type' => "Radio",
+          'is_view' => TRUE,
+        ]);
+      }
+    }
+    catch (API_Exception $ex) {
+      Civi::log()->error("Could not find a custom group with name Petities_metadata in " . __METHOD__
+        . ", error message from API4 CustomGroup get: " . $ex->getMessage());
+    }
   }
 
   /**
