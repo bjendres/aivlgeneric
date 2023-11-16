@@ -37,6 +37,12 @@ class CompilerPass implements CompilerPassInterface {
       $factoryDefinition->addMethodCall('addOutputHandler', [
         'aivl_background_giving', 'Civi\Aivlgeneric\DataProcessor\FieldOutputHandler\BackgroundGivingFieldoutputHandler', E::ts("AIVL: Donor Background Giving")
       ]);
+      $factoryDefinition->addMethodCall('addOutputHandler', [
+        'aivl_date_range_segmentation', 'Civi\Aivlgeneric\DataProcessor\FieldOutputHandler\DateRangeSegmentation', E::ts("AIVL: Date Range Segmentation")
+      ]);
+      $factoryDefinition->addMethodCall('addOutputHandler', [
+        'aivl_target_amount', 'Civi\Aivlgeneric\DataProcessor\FieldOutputHandler\TargetAmount', E::ts("AIVL: Target Amount")
+      ]);
       $factoryDefinition->addMethodCall('addDataSource', [
         'aivl_optimized_aggregatedcontribution', 'Civi\Aivlgeneric\DataProcessor\Source\Contribution\OptimizedAggregatedContributionSource', E::ts('AIVL: Contribution (Aggregated and Optimized)')
       ]);
