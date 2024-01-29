@@ -18,6 +18,7 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->createPrimaryPetitionField();
     $this->createDatabaseIndexOnContributionTable();
     $this->processPhoneFlagCustomField();
+    $this->createRijksregisternummerField();
   }
 
   /**
@@ -63,6 +64,60 @@ class CRM_Aivlgeneric_Upgrader extends CRM_Aivlgeneric_Upgrader_Base {
     $this->ctx->log->info("Applying update 1022 - add phone_flag custom field to petities_metadata and delete inconsistent ones");
     $this->processPhoneFlagCustomField();
     return TRUE;
+  }
+  public function upgrade_1025() {
+    $this->ctx->log->info("Applying update 1025 - add rijksregisternummer group and field");
+    $this->createRijksregisternummerField();
+    return TRUE;
+  }
+
+  /**
+   * Method to add custom group and field for rijksregisternummer
+   *
+   * @return void
+   */
+  private function createRijksregisternummerField(): void {
+    $customGroupData = [
+      'name' => 'aivl_sensitive_info',
+      'extends' => 'Individual',
+      'title' => 'Sensitive info',
+      'is_reserved' => TRUE,
+      'style' => 'Inline',
+      'table_name' => 'civicrm_value_aivl_sensitive_info',
+      'collapse_display' => TRUE,
+    ];
+    $customFieldData = [
+      'name' => 'rijksregisternummer',
+      'label' => 'Rijksregisternummer',
+      'data_type' => 'String',
+      'html_type' => 'Text',
+      'is_searchable' => TRUE,
+      'column_name' => 'rijksregisternummer',
+      'is_active' => TRUE,
+      'text_length' => 64,
+    ];
+    $customData = new CRM_Aivlgeneric_CustomData();
+    try {
+      $customGroup = \Civi\Api4\CustomGroup::get()
+        ->addSelect('id')
+        ->addWhere('name', '=', $customGroupData['name'])
+        ->setLimit(1)->setCheckPermissions(FALSE)->execute()->first();
+      if (!isset($customGroup['id'])) {
+        $customData->createCustomGroup($customGroupData);
+      }
+      $customField = \Civi\Api4\CustomField::get()
+        ->addSelect('id')
+        ->addWhere('custom_group_id:name', '=', $customGroupData['name'])
+        ->addWhere('name', '=', $customFieldData['name'])
+        ->setLimit(1)->setCheckPermissions(FALSE)->execute()->first();
+      if (!isset($customField['id'])) {
+        $customFieldData['custom_group_id:name'] = $customGroupData['name'];
+        $customData->createCustomField($customFieldData);
+      }
+    }
+    catch (API_Exception $ex) {
+      Civi::log()->error("Unexpected error from CustomGroup or CustomField create API4 with message: " . $ex->getMessage());
+    }
   }
 
   /**

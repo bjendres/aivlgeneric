@@ -209,13 +209,8 @@ class CRM_Aivlgeneric_CustomData {
       }
       try {
         $result = \Civi\Api4\CustomGroup::create()
-          ->setCheckPermissions(FALSE)
-          ->addValue('name', $customGroupData['name'])
-          ->addValue('title', $customGroupData['title'])
-          ->addValue('extends', $customGroupData['extends'])
-          ->addValue('is_active', TRUE)
-          ->addValue('table_name', $customGroupData['table_name'])
-          ->addValue('is_multiple', FALSE);
+          ->setCheckPermissions(FALSE)->setValues($customGroupData)
+          ->addValue('is_active', TRUE);
         if (isset($customGroupData['extends_entity_column_value']) && !empty($customGroupData['extends_entity_column_value'])) {
           if (is_array($customGroupData['extends_entity_column_value'])) {
             $result->addValue('extends_entity_column_value', $customGroupData['extends_entity_column_value']);
@@ -223,10 +218,10 @@ class CRM_Aivlgeneric_CustomData {
           else {
             $result->addValue('extends_entity_column_value', [$customGroupData['extends_entity_column_value']]);
           }
-          $result->execute()->first();
-          if (isset($result['id'])) {
-            return $result['id'];
-          }
+        }
+        $result->execute()->first();
+        if (isset($result['name'])) {
+          return $result['name'];
         }
       }
       catch (API_Exception $ex) {
@@ -244,50 +239,43 @@ class CRM_Aivlgeneric_CustomData {
    * @return false|int
    */
   public function createCustomFieldAPI4(array $customFieldData) {
-    if (isset($customFieldData['name']) && isset($customFieldData['custom_group_id'])
-      && isset($customFieldData['data_type']) && isset($customFieldData['html_type'])) {
-      if (!isset($customFieldData['label']) || empty($customFieldData['label'])) {
-        $customFieldData['label'] = str_replace("_", " ", $customFieldData['name']);
-      }
-      if (!isset($customFieldData['column_name']) || empty($customFieldData['column_name'])) {
-        $customFieldData['column_name'] = strtolower($customFieldData['column_name']);
-      }
-      if (!isset($customFieldData['in_selector']) || !$customFieldData['in_selector']) {
-        $customFieldData['in_selector'] = FALSE;
-      }
-      try {
-        $result = \Civi\Api4\CustomField::create()
-          ->setCheckPermissions(FALSE)
-          ->addValue('custom_group_id', $customFieldData['custom_group_id'])
-          ->addValue('name', $customFieldData['name'])
-          ->addValue('label', $customFieldData['label'])
-          ->addValue('data_type', $customFieldData['data_type'])
-          ->addValue('html_type', $customFieldData['html_type'])
-          ->addValue('is_searchable', TRUE)
-          ->addValue('is_active', TRUE)
-          ->addValue('column_name', $customFieldData['column_name'])
-          ->addValue('in_selector', $customFieldData['in_selector']);
-        if (isset($customFieldData['is_view'])) {
-          $result->addValue('is_view', $customFieldData['is_view']);
+    if (isset($customFieldData['name']) && isset($customFieldData['data_type']) && isset($customFieldData['html_type'])) {
+      if (isset($customFieldData['custom_group_id']) || isset($customFieldData['custom_group_id:name'])) {
+        if (!isset($customFieldData['label']) || empty($customFieldData['label'])) {
+          $customFieldData['label'] = str_replace("_", " ", $customFieldData['name']);
         }
-        if (isset($customFieldData['option_group_id']) && !empty($customFieldData['option_group_id'])) {
-          $result->addValue('option_group_id', $customFieldData['option_group_id']);
+        if (!isset($customFieldData['column_name']) || empty($customFieldData['column_name'])) {
+          $customFieldData['column_name'] = strtolower($customFieldData['column_name']);
         }
-        if (isset($customFieldData['end_date_years']) && !empty($customFieldData['end_date_years'])) {
-          $result->addValue('end_date_years', $customFieldData['end_date_years']);
+        if (!isset($customFieldData['in_selector']) || !$customFieldData['in_selector']) {
+          $customFieldData['in_selector'] = FALSE;
         }
-        if (isset($customFieldData['start_date_years']) && !empty($customFieldData['start_date_years'])) {
-          $result->addValue('start_date_years', $customFieldData['start_date_years']);
+        try {
+          $result = \Civi\Api4\CustomField::create()
+            ->setCheckPermissions(FALSE)->setValues($customFieldData)
+            ->addValue('is_searchable', TRUE)
+            ->addValue('is_active', TRUE);
+          if (isset($customFieldData['is_view'])) {
+            $result->addValue('is_view', $customFieldData['is_view']);
+          }
+          if (isset($customFieldData['option_group_id']) && !empty($customFieldData['option_group_id'])) {
+            $result->addValue('option_group_id', $customFieldData['option_group_id']);
+          }
+          if (isset($customFieldData['end_date_years']) && !empty($customFieldData['end_date_years'])) {
+            $result->addValue('end_date_years', $customFieldData['end_date_years']);
+          }
+          if (isset($customFieldData['start_date_years']) && !empty($customFieldData['start_date_years'])) {
+            $result->addValue('start_date_years', $customFieldData['start_date_years']);
+          }
+          if (isset($customFieldData['date_format']) && !empty($customFieldData['date_format'])) {
+            $result->addValue('date_format', $customFieldData['date_format']);
+          }
+          $result->execute()->first();
+          return TRUE;
+        } catch (API_Exception $ex) {
+          Civi::log()->error(E::ts("Error creating custom field in ") . __METHOD__ . E::ts(" with data")
+            . json_encode($customFieldData) . E::ts(", error from API4 CustomField create:") . $ex->getMessage());
         }
-        if (isset($customFieldData['date_format']) && !empty($customFieldData['date_format'])) {
-          $result->addValue('date_format', $customFieldData['date_format']);
-        }
-        $result->execute()->first();
-        return TRUE;
-      }
-      catch (API_Exception $ex) {
-        Civi::log()->error(E::ts("Error creating custom field in ") . __METHOD__ . E::ts(" with data")
-          . json_encode($customFieldData) . E::ts(", error from API4 CustomField create:") . $ex->getMessage());
       }
     }
     return FALSE;
