@@ -100,6 +100,18 @@ function aivlgeneric_civicrm_managed(&$entities) {
   _aivlgeneric_civix_civicrm_managed($entities);
 }
 
+function aivlgeneric_civicrm_buildForm($formName, &$form) {
+  if ($formName == 'CRM_Campaign_Form_Campaign') {
+    /**
+     * adjust campaign form to make it more efficient for AILV
+     *
+     * @see https://issues.civicoop.org/issues/10936
+     */
+    // JS adjustments
+    Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
+  }
+}
+
 /**
  * Implements hook_civicrm_caseTypes().
  *
