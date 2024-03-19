@@ -100,16 +100,53 @@ function aivlgeneric_civicrm_managed(&$entities) {
   _aivlgeneric_civix_civicrm_managed($entities);
 }
 
+/**
+ * @param string $formName
+ * @param CRM_Core_Form $form
+ * @return void
+ */
 function aivlgeneric_civicrm_buildForm($formName, &$form) {
-  if ($formName == 'CRM_Campaign_Form_Campaign') {
-    /**
-     * adjust campaign form to make it more efficient for AILV
-     *
-     * @see https://issues.civicoop.org/issues/10936
-     */
-    // JS adjustments
-    Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
-  }
+    if ($formName == 'CRM_Campaign_Form_Campaign') {
+      $templatePath = E::path('templates/CRM/Aivlgeneric/Activity/campaign_parent_field.tpl');
+      if (!file_exists($templatePath)) throw new Exception("Path not found!");
+      //$form->add('text', 'parent_id', ts('Parent Campaign'));
+      $form->addEntityRef('parent_id', ts('Parent Campaign'), [
+        'entity' => 'Campaign',
+        'create' => TRUE,
+        'select' => ['minimumInputLength' => 0],
+      ]);
+      // dynamically insert a template block in the page
+      CRM_Core_Region::instance('page-body')->add(['template' => $templatePath]);
+    }
+
+    return;
+//    $form->addAutoSelector();
+//    /**
+//     * adjust campaign form to make it more efficient for AILV
+//     *
+//     * @see https://issues.civicoop.org/issues/10936
+//     */
+//    // JS adjustments
+    //Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
+
+    // add parent campaign picker
+//    $form->addEntityRef(
+//      'parent_id',
+//      ts('Campaign'),
+//      ['entity' => 'Campaign', 'create' => FALSE, 'select' => ['minimumInputLength' => 0]]
+//    );
+//
+//    $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Integer');
+//
+//    //$campaigns = CRM_Campaign_BAO_Campaign::getCampaigns(CRM_Utils_Array::value('parent_id', []), $campaign_id);
+//    $form->add('select', 'parent_id', ts('Parent ID'),
+//                      ['' => ts('- select Parent -')] + $campaigns,
+//                      ['class' => 'crm-select2']
+//    );
+
+    // add campaign picker html (via template)
+    //$templatePath = E::path('templates/CRM/Aivlgeneric/Activity/campaign_parent_field.tpl');
+    //CRM_Core_Region::instance('page-body')->add(['template' => $templatePath]);
 }
 
 /**
