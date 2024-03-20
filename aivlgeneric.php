@@ -107,48 +107,36 @@ function aivlgeneric_civicrm_managed(&$entities) {
  */
 function aivlgeneric_civicrm_buildForm($formName, &$form) {
     if ($formName == 'CRM_Campaign_Form_Campaign') {
-      $templatePath = E::path('templates/CRM/Aivlgeneric/Activity/campaign_parent_field.tpl');
-      if (!file_exists($templatePath)) throw new Exception("Path not found!");
-      //$form->add('text', 'parent_id', ts('Parent Campaign'));
-      $form->addEntityRef('parent_id', ts('Parent Campaign'), [
-        'entity' => 'Campaign',
-        'create' => TRUE,
-        'select' => ['minimumInputLength' => 0],
-      ]);
-      // dynamically insert a template block in the page
-      CRM_Core_Region::instance('page-body')->add(['template' => $templatePath]);
+      CRM_Aivlgeneric_CampaignHierarchy::addCampaignParentField($form);
     }
-
-    return;
-//    $form->addAutoSelector();
-//    /**
-//     * adjust campaign form to make it more efficient for AILV
-//     *
-//     * @see https://issues.civicoop.org/issues/10936
-//     */
-//    // JS adjustments
-    //Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
-
-    // add parent campaign picker
-//    $form->addEntityRef(
-//      'parent_id',
-//      ts('Campaign'),
-//      ['entity' => 'Campaign', 'create' => FALSE, 'select' => ['minimumInputLength' => 0]]
-//    );
-//
-//    $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Integer');
-//
-//    //$campaigns = CRM_Campaign_BAO_Campaign::getCampaigns(CRM_Utils_Array::value('parent_id', []), $campaign_id);
-//    $form->add('select', 'parent_id', ts('Parent ID'),
-//                      ['' => ts('- select Parent -')] + $campaigns,
-//                      ['class' => 'crm-select2']
-//    );
-
-    // add campaign picker html (via template)
-    //$templatePath = E::path('templates/CRM/Aivlgeneric/Activity/campaign_parent_field.tpl');
-    //CRM_Core_Region::instance('page-body')->add(['template' => $templatePath]);
 }
 
+/**
+ * Implements hook_civicrm_validateForm().
+ *
+ * @param string $formName
+ * @param array $fields
+ * @param array $files
+ * @param CRM_Core_Form $form
+ * @param array $errors
+ */
+function aivlgeneric_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  if ($formName == 'CRM_Campaign_Form_Campaign') {
+    CRM_Aivlgeneric_CampaignHierarchy::validateCampaignParentField($form, $fields, $errors);
+  }
+}
+
+/**
+ * Set the campaign parent_id
+ *
+ * @param string $formName
+ * @param CRM_Core_Form $form
+ */
+function aivlgeneric_civicrm_postProcess($formName, $form) {
+  if ($formName == 'CRM_Campaign_Form_Campaign') {
+    CRM_Aivlgeneric_CampaignHierarchy::setCampaignParentField($form);
+  }
+}
 /**
  * Implements hook_civicrm_caseTypes().
  *
