@@ -107,6 +107,7 @@ function aivlgeneric_civicrm_managed(&$entities) {
  */
 function aivlgeneric_civicrm_buildForm($formName, &$form) {
     if ($formName == 'CRM_Campaign_Form_Campaign') {
+      Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
       CRM_Aivlgeneric_CampaignHierarchy::addCampaignParentField($form);
     }
 }
@@ -134,7 +135,7 @@ function aivlgeneric_civicrm_validateForm($formName, &$fields, &$files, &$form, 
  */
 function aivlgeneric_civicrm_postProcess($formName, $form) {
   if ($formName == 'CRM_Campaign_Form_Campaign') {
-    CRM_Aivlgeneric_CampaignHierarchy::setCampaignParentField($form);
+    CRM_Aivlgeneric_CampaignHierarchy::updateCampaignParentField($form);
   }
 }
 /**

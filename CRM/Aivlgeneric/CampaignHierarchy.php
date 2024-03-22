@@ -17,12 +17,12 @@ class CRM_Aivlgeneric_CampaignHierarchy {
    *
    * @return void
    */
-  public static function addCampaignParentField($form)
+  public static function addCampaignParentField(&$form)
   {
     // dynamically insert a template block in the page
     $templatePath = E::path('templates/campaign_parent_id.tpl');
     CRM_Core_Region::instance('page-body')->add(['template' => $templatePath]);
-    $form->add('text', 'campaign_parent_id', ts('Parent Campaign'));
+    $form->addElement('text', 'campaign_parent_id', ts('Parent Campaign'));
 
     // prefill for existing campaigns
     $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Positive');
@@ -30,7 +30,13 @@ class CRM_Aivlgeneric_CampaignHierarchy {
       // get current parent_id ID
       $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $campaign_id, 'return' => 'parent_id']);
       if (!empty($campaign['parent_id'])) {
-        $form->setDefaults(['campaign_parent_id' => $campaign['parent_id']]);
+        // doesn't seem to work on injected field:
+        // $form->setDefaults(['campaign_parent_id' => $campaign['parent_id']]);
+
+        // use JS variable instead
+        CRM_Core_Resources::singleton()->addVars('aivlgeneric', ['parent_campaign_id' => $campaign['parent_id']]);
+      } else {
+        CRM_Core_Resources::singleton()->addVars('aivlgeneric', ['parent_campaign_id' => '']);
       }
     }
   }
@@ -40,40 +46,60 @@ class CRM_Aivlgeneric_CampaignHierarchy {
    *   1) it has to be an existing campaign
    *   2) it cannot be the campaign's own ID or any of its children
    */
+  /**
+   * @param CRM_Core_Form $form
+   * @throws CRM_Core_Exception
+   * @throws CiviCRM_API3_Exception
+   */
   public static function validateCampaignParentField( &$form, &$fields, &$errors) {
     $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Positive');
-    $proposed_parent_campaign_id = (int) $fields['campaign_parent_id'];
-    if ($proposed_parent_campaign_id) {
-      // first: check if the campaign exists:
+    $proposed_campaign_parent_id = (int) $fields['campaign_parent_id'];
+
+    // make sure you're not your own father
+    if ($campaign_id == $proposed_campaign_parent_id) {
+      $form->setElementError('campaign_parent_id', E::ts("Campaign cannot be parent of itself!"));
+      return;
+    }
+
+    // first: check if the campaign exists (unless empty)
+    if (!empty($proposed_campaign_parent_id)) {
       try {
-        civicrm_api3('Campaign', 'getsingle', [
-          'id' => $proposed_parent_campaign_id, 'return' => ['id', 'parent_id']]);
+        $current_campaign = civicrm_api3('Campaign', 'getsingle', [
+          'id' => $proposed_campaign_parent_id, 'return' => 'id,parent_id']);
+        $current_campaign_parent_id = $current_campaign['parent_id'] ?? '';
+        if ($current_campaign_parent_id == $proposed_campaign_parent_id) {
+          return;
+        }
       } catch (CiviCRM_API3_Exception $ex) {
-        $errors['parent_campaign_id'] = E::ts("Invalid Campaign ID");
+        /** CRM_Core_Form $form */
+        $form->setElementError('campaign_parent_id', E::ts("Invalid Campaign ID"));
         return;
       }
+    }
 
-      // then: check if the $proposed_parent_campaign is one of the campaign's children (would create loop)
-      $children_generation = [$proposed_parent_campaign_id]; // init with the proposed campaign
-      while ($children_generation) {
-        if (in_array($campaign_id, $children_generation)) {
-          //$form->setElementError('parent_campaign_id', E::ts("Campaign cannot be its own parent!"));
-          $errors['parent_campaign_id'] = E::ts("Campaign cannot be its own parent!");
+    // check if the $proposed_parent_campaign would cause a loop
+    $loop_check = [$proposed_campaign_parent_id, $campaign_id];
+    $campaign_node_pointer = $proposed_campaign_parent_id;
+    do {
+      // go up to the next parent
+      $parent_node_query    = civicrm_api3('Campaign', 'getsingle', [
+        'id'           => $campaign_node_pointer,
+        'option.limit' => 0,
+        'return'       => 'id,parent_id'
+      ]);
+      $parent_loop_check_id = (int)$parent_node_query['parent_id'] ?? 0;
+      if ($parent_loop_check_id) {
+        if (in_array($parent_loop_check_id, $loop_check)) {
+          // we've found the node in the proposed parent node's ancestors, this would be a cycle
+          $form->setElementError('campaign_parent_id',
+                                 E::ts("This would create a cycle in the parent relationship: " . implode('->', $loop_check) . '->' . $loop_check[0]));
           return;
         } else {
-          // go to the next generation
-          $next_generation = [];
-          $next_generation_query = civicrm_api3('Campaign', 'get', [
-            'parent_id' => ['IN' => [1,2]],
-            'option.limit' => 0,
-          ]);
-          foreach ($next_generation_query['values'] as $child) {
-            $next_generation[] = $child['id'];
-          }
-          if (empty($next_generation)) break; // no more descendants
+          $campaign_node_pointer = $parent_loop_check_id;
+          $loop_check[]          = $parent_loop_check_id;
         }
       }
-    }
+    } while ($parent_loop_check_id);
   }
 
   /**
@@ -83,14 +109,14 @@ class CRM_Aivlgeneric_CampaignHierarchy {
    *
    * @var $form CRM_Core_Form
    */
-  public static function setCampaignParentField(&$form)
+  public static function updateCampaignParentField(&$form)
   {
     $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Positive');
-    $proposed_parent_campaign_id = $form->getSubmitValue('campaign_parent_id');
+    $proposed_campaign_parent_id = $form->getSubmitValue('campaign_parent_id');
     $current_campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $campaign_id, 'return' => 'parent_id']);
-    $current_parent_campaign_id = $current_campaign['parent_id'] ?? '';
-    if ($current_parent_campaign_id != $proposed_parent_campaign_id) {
-      civicrm_api3('Campaign', 'create', ['id' => $campaign_id, 'parent_id' => $proposed_parent_campaign_id]);
+    $current_campaign_parent_id = $current_campaign['parent_id'] ?? '';
+    if ($current_campaign_parent_id != $proposed_campaign_parent_id) {
+      civicrm_api3('Campaign', 'create', ['id' => $campaign_id, 'parent_id' => $proposed_campaign_parent_id]);
     }
   }
 }
