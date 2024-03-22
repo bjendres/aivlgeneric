@@ -30,10 +30,9 @@ class CRM_Aivlgeneric_CampaignHierarchy {
       // get current parent_id ID
       $campaign = civicrm_api3('Campaign', 'getsingle', ['id' => $campaign_id, 'return' => 'parent_id']);
       if (!empty($campaign['parent_id'])) {
-        // doesn't seem to work on injected field:
+        // setDefaults doesn't seem to work on injected field:
         // $form->setDefaults(['campaign_parent_id' => $campaign['parent_id']]);
-
-        // use JS variable instead
+        // ... use JS variable instead:
         CRM_Core_Resources::singleton()->addVars('aivlgeneric', ['parent_campaign_id' => $campaign['parent_id']]);
       } else {
         CRM_Core_Resources::singleton()->addVars('aivlgeneric', ['parent_campaign_id' => '']);
@@ -60,6 +59,9 @@ class CRM_Aivlgeneric_CampaignHierarchy {
       $form->setElementError('campaign_parent_id', E::ts("Campaign cannot be parent of itself!"));
       return;
     }
+
+    // newly created campaigns don't have to undergo further scrutiny!
+    if (empty($campaign_id)) return;
 
     // first: check if the campaign exists (unless empty)
     if (!empty($proposed_campaign_parent_id)) {

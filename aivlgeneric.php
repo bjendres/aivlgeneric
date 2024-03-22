@@ -107,8 +107,11 @@ function aivlgeneric_civicrm_managed(&$entities) {
  */
 function aivlgeneric_civicrm_buildForm($formName, &$form) {
     if ($formName == 'CRM_Campaign_Form_Campaign') {
-      Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
-      CRM_Aivlgeneric_CampaignHierarchy::addCampaignParentField($form);
+      $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Positive');
+      if ($campaign_id) {
+        Civi::resources()->addScriptFile(E::SHORT_NAME, 'js/campaign_modifications.js');
+        CRM_Aivlgeneric_CampaignHierarchy::addCampaignParentField($form);
+      }
     }
 }
 
@@ -123,7 +126,10 @@ function aivlgeneric_civicrm_buildForm($formName, &$form) {
  */
 function aivlgeneric_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
   if ($formName == 'CRM_Campaign_Form_Campaign') {
-    CRM_Aivlgeneric_CampaignHierarchy::validateCampaignParentField($form, $fields, $errors);
+    $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Positive');
+    if ($campaign_id) {
+      CRM_Aivlgeneric_CampaignHierarchy::validateCampaignParentField($form, $fields, $errors);
+    }
   }
 }
 
@@ -135,7 +141,10 @@ function aivlgeneric_civicrm_validateForm($formName, &$fields, &$files, &$form, 
  */
 function aivlgeneric_civicrm_postProcess($formName, $form) {
   if ($formName == 'CRM_Campaign_Form_Campaign') {
-    CRM_Aivlgeneric_CampaignHierarchy::updateCampaignParentField($form);
+    $campaign_id = (int) CRM_Utils_Request::retrieve('id', 'Positive');
+    if ($campaign_id) {
+      CRM_Aivlgeneric_CampaignHierarchy::updateCampaignParentField($form);
+    }
   }
 }
 /**
